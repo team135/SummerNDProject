@@ -33,6 +33,16 @@ private final int NUMBER_OF_CHECKSUM_BYTES_RECEIVED = 2;
 private byte[] dataToSend = new byte[NUM_BYTES_TO_SEND];
 private byte[] dataBytesRead = new byte[MAX_NUM_BYTES_TO_READ];
 
+private final int SIGNATURE_1 = 0b00000001;
+private final int SIGNATURE_2 = 0b00000010;
+private final int SIGNATURE_3 = 0b00000100;
+private final int SIGNATURE_4 = 0b00001000;
+private final int SIGNATURE_5 = 0b00010000;
+private final int SIGNATURE_6 = 0b00100000;
+private final int SIGNATURE_7 = 0b01000000;
+
+private int signatureCode;
+
     //  Methods
 
     public void initDefaultCommand() {
@@ -89,6 +99,12 @@ private byte[] dataBytesRead = new byte[MAX_NUM_BYTES_TO_READ];
     {
     	pixy2.readOnly(dataBytesRead, numberOfBytesToRead);
     	return dataBytesRead;
+    }
+    
+    public void ChooseSignatures(int signatureCode)
+    {
+    	this.signatureCode = signatureCode;
+    	return;
     }
 }
 

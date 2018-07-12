@@ -37,7 +37,7 @@ public class GetPixyData extends Command {
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
     	Robot.pixyCam.WriteToPixy2();
-    	timer.delay(.001);
+    	timer.delay(.002);
     	numberOfBytesToRead = (int)Robot.pixyCam.GetNumberOfBytesToRead();
     	
     	System.out.println(numberOfBytesToRead);
