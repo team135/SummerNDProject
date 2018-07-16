@@ -62,5 +62,26 @@ public class DriveTrain extends Subsystem {
     	return;
     }
     
+    public void DriveIndividualMotor(int talonID)
+    {
+    	if (talonID == RobotMap.DRIVE_TRAIN_FRONT_LEFT_TALON_ID)
+    	{
+    		frontLeftMotor.set(.2);
+    	}
+    	else if (talonID == RobotMap.DRIVE_TRAIN_FRONT_RIGHT_TALON_ID)
+    	{
+    		frontRightMotor.set(.2);
+    	}
+    	else if (talonID == RobotMap.DRIVE_TRAIN_REAR_LEFT_TALON_ID)
+    	{
+    		rearLeftMotor.set(.2);
+    	}
+    	else if (talonID == RobotMap.DRIVE_TRAIN_REAR_RIGHT_TALON_ID)
+    	{
+    		rearRightMotor.set(.2);
+    	}
+    	return;
+    }
+    
 }
 

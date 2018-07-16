@@ -2,6 +2,7 @@ package org.usfirst.frc.team135.robot.commands;
 
 import org.usfirst.frc.team135.robot.OI;
 import org.usfirst.frc.team135.robot.Robot;
+import org.usfirst.frc.team135.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -30,13 +31,15 @@ public class DriveWithJoysticks extends Command {
     // Called repeatedly when this Command is scheduled to run
     protected void execute()
     {
-    	rightJoystickValue = Robot.oi.GetJoystickYValue(OI.LEFT_JOYSTICK);
-    	leftJoystickValue = Robot.oi.GetJoystickYValue(OI.RIGHT_JOYSTICK);
+    	leftJoystickValue = Robot.oi.GetJoystickYValue(OI.LEFT_JOYSTICK);
+    	rightJoystickValue = Robot.oi.GetJoystickYValue(OI.RIGHT_JOYSTICK);
     	
     	SmartDashboard.putNumber("Right Joystick Value", rightJoystickValue);
     	SmartDashboard.putNumber("Left Joystick Value", leftJoystickValue);
     	
     	Robot.driveTrain.TankDrive(leftJoystickValue,  rightJoystickValue);
+    	
+    	//Robot.driveTrain.DriveIndividualMotor(RobotMap.DRIVE_TRAIN_REAR_RIGHT_TALON_ID);
     }
 
     // Make this return true when this Command no longer needs to run execute()
