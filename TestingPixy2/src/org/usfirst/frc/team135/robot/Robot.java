@@ -12,9 +12,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import org.usfirst.frc.team135.robot.commands.ExampleCommand;
-import org.usfirst.frc.team135.robot.subsystems.ExampleSubsystem;
+//  import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 import org.usfirst.frc.team135.robot.subsystems.PixyCam;
@@ -27,9 +25,9 @@ import org.usfirst.frc.team135.robot.subsystems.PixyCam;
  * project.
  */
 public class Robot extends TimedRobot {
-	public static ExampleSubsystem m_subsystem = new ExampleSubsystem();
+	//  public static ExampleSubsystem m_subsystem = new ExampleSubsystem();
 	
-	public static OI m_oi;
+	public static OI oi;
 	public static PixyCam pixyCam;
 
 	Command m_autonomousCommand;
@@ -41,13 +39,12 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void robotInit() {
-		m_oi = new OI();
-		
+		oi = OI.InitializeOperatorInterface();
 		pixyCam = PixyCam.InitializeSubsystem();
 		
-		m_chooser.addDefault("Default Auto", new ExampleCommand());
-		// chooser.addObject("My Auto", new MyAutoCommand());
-		SmartDashboard.putData("Auto mode", m_chooser);
+		//  m_chooser.addDefault("Default Auto", new ExampleCommand());
+		//  chooser.addObject("My Auto", new MyAutoCommand());
+		//  SmartDashboard.putData("Auto mode", m_chooser);
 	}
 
 	/**
@@ -78,7 +75,7 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void autonomousInit() {
-		m_autonomousCommand = m_chooser.getSelected();
+		//  m_autonomousCommand = m_chooser.getSelected();
 
 		/*
 		 * String autoSelected = SmartDashboard.getString("Auto Selector",
@@ -88,9 +85,9 @@ public class Robot extends TimedRobot {
 		 */
 
 		// schedule the autonomous command (example)
-		if (m_autonomousCommand != null) {
+		/* if (m_autonomousCommand != null) {
 			m_autonomousCommand.start();
-		}
+		} */
 	}
 
 	/**
