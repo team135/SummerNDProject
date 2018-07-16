@@ -65,12 +65,15 @@ private int numberOfBytesToWrite;
 private final int DEFAULT_SIGNATURE = SIGNATURE_1;
 private final int MAX_BLOCKS_TO_DETECT = 0xFF;
 
+//  ModifyDataByte()
+private int modifiedDataByte;
+
 //  IsCorrectResponseAddress()
 private int responseAddress;
 private int correctResponseAddress = 0x00;  //  Giving Variable Initial Value
 
 //  GetNumberOfBytesToRead()
-private int numberOfBytesToRead;
+private int bytesToRead;
 
 //  GetResolution()
 private int[] resolution = new int[2];
@@ -79,6 +82,7 @@ private int[] resolution = new int[2];
 private int numberOfObjectsDetected;
 private int leastSignificantByte;
 private int mostSignificantByte;
+private int initialData;
 public static final int MAX_OBJECTS_TO_STORE = 10;
 private final int NUMBER_OF_CHARACTERISTICS_TO_STORE = 7;
 public static final int NUMBER_OF_IMPORTANT_CHARACTERISTICS = 5;
@@ -91,6 +95,9 @@ public static final int OBJECT_SIGNATURE = 0;
 int[] coordinates = new int[2];
 public static final int X_ONLY = 1;
 public static final int Y_ONLY = 2;
+
+//  ModifyCoordinates()
+private int modifiedData;
 
 //  GetWidthAndHeightOfObject()
 int[] widthAndHeight = new int[2];
@@ -179,10 +186,23 @@ private int[] objectImportantData = new int[5];
     	return;
     }
     
+    private int ModifyDataByte(byte dataByte)
+    {	
+    	if (dataByte < 0)
+    	{
+    		modifiedDataByte = (256 + ((int)dataByte));
+    	}
+    	else
+    	{
+    		modifiedDataByte = (int)dataByte;
+    	}
+    	return modifiedDataByte;
+    }
+    
     public boolean IsCorrectResponseAddress(RequestedDataType requestedDataType)
     {
     	pixy2.readOnly(dataBytesRead, 3);
-    	responseAddress = dataBytesRead[2];
+    	responseAddress = ModifyDataByte(dataBytesRead[2]);
     	
     	switch (requestedDataType)
     	{
@@ -200,33 +220,32 @@ private int[] objectImportantData = new int[5];
     	return (responseAddress == correctResponseAddress);
     }
     
-    private void GetNumberOfBytesToRead()
+    public int GetNumberOfBytesToRead()
     {
     	pixy2.readOnly(dataBytesRead, 1);
-    	numberOfBytesToRead = dataBytesRead[0];
+    	bytesToRead = ModifyDataByte(dataBytesRead[0]);
     	
     	pixy2.readOnly(dataBytesRead, 2);  //  Reading the Next Two Bytes because we ignore them
-    	return;
+    	return bytesToRead;
     }
     
-    public void ClearBuffer()
+    public void ClearBuffer(int numberOfBytesToRead)
     {
-    	this.GetNumberOfBytesToRead();
     	pixy2.readOnly(dataBytesRead, numberOfBytesToRead);
     	return;
     }
     
-    public int[] GetResolution()
+    public int[] GetResolution(int numberOfBytesToRead)
     {	
-    	this.GetNumberOfBytesToRead();
     	pixy2.readOnly(dataBytesRead, numberOfBytesToRead);  //  Reading 4 Bytes
     	
-    	resolution[0] = (dataBytesRead[1] << 8) + dataBytesRead[0];
-    	resolution[1] = (dataBytesRead[3] << 8) + dataBytesRead[2];
+    	resolution[0] = (ModifyDataByte(dataBytesRead[1]) << 8) + ModifyDataByte(dataBytesRead[0]);
+    	resolution[1] = (ModifyDataByte(dataBytesRead[3]) << 8) + ModifyDataByte(dataBytesRead[2]);
+    	
     	return resolution;
     }
     
-    public int GetNumberOfObjectsDetectedAndOrganizeGeneralData()
+    public int GetNumberOfObjectsDetectedAndOrganizeGeneralData(int numberOfBytesToRead)
     {	
     	numberOfObjectsDetected = numberOfBytesToRead / 14;
     	this.ZeroDataBytesReadArray();
@@ -239,21 +258,22 @@ private int[] objectImportantData = new int[5];
     			switch (j)
     			{
 	    			case 0:  //  Signature Number
-	    				objectGeneralData[i][j] = dataBytesRead[(7 * i)];
+	    				objectGeneralData[i][j] = ModifyDataByte(dataBytesRead[(7 * i)]);
 	    				break;
 	    			case 1:  //  X Coordinate
 	    			case 2:  //  Y Coordinate
 	    			case 3:  //  Width
 	    			case 4:  //  Height
-	    				leastSignificantByte = dataBytesRead[(7 * i) + (2 * j)];
-	    				mostSignificantByte = dataBytesRead[(7 * i) + (2 * j) + 1];
-	    				objectGeneralData[i][j] = (mostSignificantByte << 8) + leastSignificantByte;
+	    				leastSignificantByte = ModifyDataByte(dataBytesRead[(7 * i) + (2 * j)]);
+	    				mostSignificantByte = ModifyDataByte(dataBytesRead[(7 * i) + (2 * j) + 1]);
+	    				initialData = (mostSignificantByte << 8) + leastSignificantByte;
+	    				objectGeneralData[i][j] = ModifyData(initialData, j);
 	    				break;
 	    			case 5:  //  Index
-	    				objectGeneralData[i][j] = dataBytesRead[(7 * i) + 12];
+	    				objectGeneralData[i][j] = ModifyDataByte(dataBytesRead[(7 * i) + 12]);
 	    				break;
 	    			case 6:  //  Age
-	    				objectGeneralData[i][j] = dataBytesRead[(7 * i) + 13];
+	    				objectGeneralData[i][j] = ModifyDataByte(dataBytesRead[(7 * i) + 13]);
 	    				break;
     			}
     		}
@@ -277,6 +297,22 @@ private int[] objectImportantData = new int[5];
     private int GetXAndYCoordinatesOfObject(int objectNumber, int xOrYOnly)
     {
     	return objectGeneralData[objectNumber][xOrYOnly];
+    }
+    
+    //  Used to Modify Coordinates for a 4-Quadrant Plane, not just a single Quadrant
+    public int ModifyData(int data, int xOrYOnly)
+    {
+    	modifiedData = data;
+    	
+    	if (xOrYOnly == X_ONLY)
+    	{
+    		modifiedData = data - (int)(.5 * resolution[0]);
+    	}
+    	else if (xOrYOnly == Y_ONLY)
+    	{
+    		modifiedData = (int)(.5 * resolution[1]) - data;
+    	}
+    	return modifiedData;
     }
     
     

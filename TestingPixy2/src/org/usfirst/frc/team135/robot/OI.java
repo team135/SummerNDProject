@@ -7,11 +7,26 @@
 
 package org.usfirst.frc.team135.robot;
 
+import edu.wpi.first.wpilibj.Joystick;
+
 /**
  * This class is the glue that binds the controls on the physical operator
  * interface to the commands and command groups that allow control of the robot.
  */
 public class OI {
+	
+	public static final int LEFT_JOYSTICK = 0;
+	public static final int RIGHT_JOYSTICK = 1;
+	
+	Joystick leftJoystick = new Joystick(LEFT_JOYSTICK);
+	Joystick rightJoystick = new Joystick(RIGHT_JOYSTICK);
+	
+	//  DeadbandJoystickValue()
+	private double DRIVE_TRAIN_JOYSTICK_DEADBAND = .05;
+	private double returnJoystickValue;
+	
+	//  GetJoystickYValue()
+	private double joystickYValue;
 	
 	public static OI instance;
 	
@@ -50,5 +65,32 @@ public class OI {
 			instance = new OI();
 		}
 		return instance;
+	}
+	
+	private double DeadbandJoystickValue(double joystickValue)
+	{
+		if (Math.abs(joystickValue) >= DRIVE_TRAIN_JOYSTICK_DEADBAND)
+		{
+			returnJoystickValue = joystickValue;
+		}
+		else 
+		{
+			returnJoystickValue = 0.0;
+		}
+		return returnJoystickValue;
+	}
+	
+	public double GetJoystickYValue(int joystickNumber)
+	{
+		if (joystickNumber == LEFT_JOYSTICK)
+		{
+			joystickYValue = this.DeadbandJoystickValue(-leftJoystick.getY());
+		}
+		else if (joystickNumber == RIGHT_JOYSTICK)
+		{
+			joystickYValue = this.DeadbandJoystickValue(-rightJoystick.getY());
+		}
+		
+		return joystickYValue;
 	}
 }

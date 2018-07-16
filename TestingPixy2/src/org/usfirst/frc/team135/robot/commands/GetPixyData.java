@@ -21,6 +21,10 @@ public class GetPixyData extends Command {
 	
 	private int numberOfObjectsDetected = 0;
 	private int[][] importantObjectInformation = new int [PixyCam.MAX_OBJECTS_TO_STORE][PixyCam.NUMBER_OF_IMPORTANT_CHARACTERISTICS];
+	
+	private boolean pixyInitialized = false;
+	private boolean correctAddress;
+	private int numberOfBytesToRead = 0;
 
     public GetPixyData()
     {
@@ -38,10 +42,16 @@ public class GetPixyData extends Command {
     // Called repeatedly when this Command is scheduled to run
     protected void execute() 
     {
+    	
     	switch (phaseNumber)
     	{
 	    	case INITIALIZE_PIXY:
-	    		if (Robot.pixyCam.InitializePixy())
+	    		pixyInitialized = Robot.pixyCam.InitializePixy();
+	    		//  System.out.println(pixyInitialized);
+	    		numberOfBytesToRead = Robot.pixyCam.GetNumberOfBytesToRead();
+	    		//  System.out.println(numberOfBytesToRead);
+	    		//  Robot.pixyCam.ClearBuffer(numberOfBytesToRead);
+	    		if (pixyInitialized)
 	    		{
 	    			System.out.println("Pixy Initialized");
 	    			phaseNumber++;
@@ -51,16 +61,17 @@ public class GetPixyData extends Command {
 	    			break;
 	    		}
 	    		
-	    		Robot.pixyCam.ClearBuffer();
-	    		
 	    	case GET_RESOLUTION:
 	    		//  Timer.delay(.0002);
 	    		Robot.pixyCam.RequestDataFromPixy(PixyCam.RequestedDataType.Resolution);
 	    		Timer.delay(.0002);
 	    		
-	    		if (Robot.pixyCam.IsCorrectResponseAddress(PixyCam.RequestedDataType.Resolution))
+	    		correctAddress = Robot.pixyCam.IsCorrectResponseAddress(PixyCam.RequestedDataType.Resolution);
+	    		numberOfBytesToRead = Robot.pixyCam.GetNumberOfBytesToRead();
+	    		
+	    		if (correctAddress)
 	    		{
-	    			pixyResolution = Robot.pixyCam.GetResolution();
+	    			pixyResolution = Robot.pixyCam.GetResolution(numberOfBytesToRead);
 	    			System.out.println("RoboRIO received Pixy Resolution");
 	    			System.out.print("Pixy Resolution Width: ");
 	    			System.out.println(pixyResolution[0]);
@@ -70,26 +81,29 @@ public class GetPixyData extends Command {
 	    		}
 	    		else
 	    		{
-	    			Robot.pixyCam.ClearBuffer();
+	    			//  Robot.pixyCam.ClearBuffer(numberOfBytesToRead);
 	    			break;
 	    		}
 	    		
 	    	case REQUEST_INFORMATION_FROM_PIXY:
-	    		//  Timer.delay(.0002);
-	    		//  System.out.println("Requesting Object from Pixy");
 	    		Robot.pixyCam.RequestDataFromPixy(PixyCam.RequestedDataType.General, PixyCam.SIGNATURE_1);
 	    		Timer.delay(.0002);  //  100 microseconds is MAX Latency Time
 	    		
-	    		if (Robot.pixyCam.IsCorrectResponseAddress(PixyCam.RequestedDataType.General))
+	    		correctAddress = Robot.pixyCam.IsCorrectResponseAddress(PixyCam.RequestedDataType.General);
+	    		numberOfBytesToRead = Robot.pixyCam.GetNumberOfBytesToRead();
+	    		
+	    		if (correctAddress && numberOfBytesToRead > 0)
 	    		{
-	    			//  System.out.println("Receiving Data from Pixy");
-	    			numberOfObjectsDetected = Robot.pixyCam.GetNumberOfObjectsDetectedAndOrganizeGeneralData();
+	    			System.out.println("Receiving Data from Pixy");
+	    			numberOfObjectsDetected = Robot.pixyCam.GetNumberOfObjectsDetectedAndOrganizeGeneralData(numberOfBytesToRead);
 	    			
 	    			for (int i = 0; i < numberOfObjectsDetected; i++)
 	    			{
 	    				importantObjectInformation[i] = Robot.pixyCam.GetImportantObjectInformation(i);
 	    			}
 	    		
+	    			//  System.out.print("Number of Objects Detected: ");
+	    			//  System.out.println(numberOfObjectsDetected);
 	    			SmartDashboard.putNumber("Number of Objects Detected", numberOfObjectsDetected);
 	    			SmartDashboard.putNumber("Object 1 Signature", importantObjectInformation[0][PixyCam.OBJECT_SIGNATURE]);
 	    			SmartDashboard.putNumber("Object 1 X-Coordinate", importantObjectInformation[0][PixyCam.X_ONLY]);
@@ -97,10 +111,15 @@ public class GetPixyData extends Command {
 	    			SmartDashboard.putNumber("Object 1 Width", importantObjectInformation[0][PixyCam.WIDTH_ONLY]);
 	    			SmartDashboard.putNumber("Object 1 Height", importantObjectInformation[0][PixyCam.HEIGHT_ONLY]);
 	    		}
+	    		else if (correctAddress && numberOfBytesToRead == 0)
+	    		{
+	    			SmartDashboard.putNumber("Number of Objects Detected", 0);
+	    		}
 	    		else
 	    		{
-	    			Robot.pixyCam.ClearBuffer();
+	    			//  Robot.pixyCam.ClearBuffer(numberOfBytesToRead);
 	    		}
+	    		
 	    		break;
     	}
     
