@@ -31,6 +31,12 @@ public class DriveTrain extends Subsystem {
 	//  TankDrive()
 	private final boolean SQUARED_INPUTS = false;
 	
+	//  InitializeCurvatureDrive()
+	private final double INITIAL_QUICK_STOP_ALPHA_VALUE = 1.0;
+	
+	//  DriveCurvature()
+	private final double P_VALUE = .05;	
+	private final boolean QUICK_TURN_DISABLED = false;
 
     public void initDefaultCommand() {
         // Set the default command for a subsystem here.
@@ -45,15 +51,6 @@ public class DriveTrain extends Subsystem {
     		instance = new DriveTrain();
     	}
     	return instance;
-    }
-    
-    public void InvertMotors()
-    {
-    	frontLeftMotor.setInverted(false);
-    	frontRightMotor.setInverted(false);
-    	rearLeftMotor.setInverted(false);
-    	rearRightMotor.setInverted(false);
-    	return;
     }
     
     public void TankDrive(double leftMotorPower, double rightMotorPower)
@@ -80,6 +77,24 @@ public class DriveTrain extends Subsystem {
     	{
     		rearRightMotor.set(.2);
     	}
+    	return;
+    }
+    
+    public void InitializeCurvatureDrive()
+    {
+    	chassis.setQuickStopAlpha(INITIAL_QUICK_STOP_ALPHA_VALUE);
+    	chassis.curvatureDrive(0.0, 0.0, true);
+    	
+    	return;
+    }
+    
+    public void DriveCurvature(double motorPower, int pixyXCoordinate)
+    {
+    	double zRotationPower;
+    	
+    	zRotationPower = pixyXCoordinate * P_VALUE;
+    	chassis.curvatureDrive(motorPower, zRotationPower, QUICK_TURN_DISABLED);
+    	
     	return;
     }
     

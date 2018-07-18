@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
 
-import org.usfirst.frc.team135.robot.commands.GetPixyData;
+//  import org.usfirst.frc.team135.robot.commands.GetPixyData;
 
 public class PixyCam extends Subsystem {
 	
@@ -108,11 +108,13 @@ public static final int HEIGHT_ONLY = 4;
 private int[] objectImportantData = new int[5];
 
 
+
+
     public void initDefaultCommand() {
         // Set the default command for a subsystem here.
         //setDefaultCommand(new MySpecialCommand());
     	
-    	setDefaultCommand(new GetPixyData());
+    	//  setDefaultCommand(new GetPixyData());
     }
     
     //  Used to create and instance of the PixyCam Subsystem in Robot.java

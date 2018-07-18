@@ -8,6 +8,9 @@
 package org.usfirst.frc.team135.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.buttons.JoystickButton;
+
+import org.usfirst.frc.team135.robot.commands.GetPixyData;
 
 /**
  * This class is the glue that binds the controls on the physical operator
@@ -18,8 +21,12 @@ public class OI {
 	public static final int LEFT_JOYSTICK = 0;
 	public static final int RIGHT_JOYSTICK = 1;
 	
-	Joystick leftJoystick = new Joystick(LEFT_JOYSTICK);
-	Joystick rightJoystick = new Joystick(RIGHT_JOYSTICK);
+	private static final int TRIGGER_BUTTON_NUMBER = 1;
+	
+	static Joystick leftJoystick = new Joystick(LEFT_JOYSTICK);
+	static Joystick rightJoystick = new Joystick(RIGHT_JOYSTICK);
+	
+	static JoystickButton rightTrigger = new JoystickButton(rightJoystick, TRIGGER_BUTTON_NUMBER);
 	
 	//  DeadbandJoystickValue()
 	private double DRIVE_TRAIN_JOYSTICK_DEADBAND = .05;
@@ -92,5 +99,11 @@ public class OI {
 		}
 		
 		return joystickYValue;
+	}
+	
+	public static void InitializeButtonsWithCommands()
+	{
+		rightTrigger.toggleWhenPressed(new GetPixyData());
+		return;
 	}
 }
