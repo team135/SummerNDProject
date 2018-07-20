@@ -7,8 +7,6 @@
 
 package org.usfirst.frc.team135.robot;
 
-//import edu.wpi.cscore.UsbCamera;
-//import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 
 import edu.wpi.first.wpilibj.command.Command;
@@ -33,9 +31,7 @@ public class Robot extends TimedRobot {
 	public static OI oi;
 	public static PixyCam pixyCam;
 	public static DriveTrain driveTrain;
-	
-	//UsbCamera pixyCamera = new UsbCamera("Pixy", 1);
-	
+
 	Command m_autonomousCommand;
 	SendableChooser<Command> m_chooser = new SendableChooser<>();
 
@@ -49,11 +45,7 @@ public class Robot extends TimedRobot {
 		pixyCam = PixyCam.InitializeSubsystem();
 		driveTrain = DriveTrain.InitializeDriveTrain();
 		
-		//pixyCamera = CameraServer.getInstance().startAutomaticCapture();
-		
 		OI.InitializeButtonsWithCommands();
-		
-		//CameraServer.getInstance().startAutomaticCapture("Pixy", 0);
 		
 		//  m_chooser.addDefault("Default Auto", new ExampleCommand());
 		//  chooser.addObject("My Auto", new MyAutoCommand());

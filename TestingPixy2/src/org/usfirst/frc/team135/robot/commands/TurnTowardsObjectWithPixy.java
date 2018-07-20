@@ -1,17 +1,17 @@
 package org.usfirst.frc.team135.robot.commands;
 
+import org.usfirst.frc.team135.robot.Robot;
+import org.usfirst.frc.team135.robot.subsystems.DriveTrain;
+import org.usfirst.frc.team135.robot.subsystems.EstablishI2CPixyConnection;
+import org.usfirst.frc.team135.robot.subsystems.PixyCam;
+
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.Timer;
-
-import org.usfirst.frc.team135.robot.Robot;
-import org.usfirst.frc.team135.robot.subsystems.PixyCam;
-import org.usfirst.frc.team135.robot.subsystems.EstablishI2CPixyConnection;
 
 /**
  *
  */
-public class GetPixyData extends Command {
+public class TurnTowardsObjectWithPixy extends Command {
 	
 	private final int INITIALIZING_PIXY = 0;
 	private final int RECEIVING_GENERAL_DATA = 1;
@@ -21,10 +21,11 @@ public class GetPixyData extends Command {
 	
 	private int[][] generalDataBytesRead = new int[PixyCam.MAX_OBJECTS_TO_STORE][PixyCam.NUMBER_OF_GENERAL_DATA_BYTES];
 
-    public GetPixyData()
+    public TurnTowardsObjectWithPixy()
     {
         // Use requires() here to declare subsystem dependencies
         // eg. requires(chassis);
+    	requires(Robot.driveTrain);
     	requires(Robot.pixyCam);
     }
 
@@ -36,7 +37,7 @@ public class GetPixyData extends Command {
     }
 
     // Called repeatedly when this Command is scheduled to run
-    protected void execute() 
+    protected void execute()
     {
     	switch (phaseNumber)
     	{
@@ -48,6 +49,10 @@ public class GetPixyData extends Command {
 	    		if (numberOfObjectsDetected > 0)
 	    		{
 	    			generalDataBytesRead = Robot.pixyCam.GetGeneralPixyData(numberOfObjectsDetected);
+	    		}
+	    		else if (numberOfObjectsDetected == 0)
+	    		{
+	    			Robot.driveTrain.TurnDriveTrain(.4, DriveTrain.DirectionToTurn.Left);
 	    		}
     	}
     	
@@ -68,14 +73,16 @@ public class GetPixyData extends Command {
     }
 
     // Called once after isFinished returns true
-    protected void end() 
+    protected void end()
     {
+    	Robot.driveTrain.TankDrive(0.0,  0.0);
     	phaseNumber = INITIALIZING_PIXY;
+    	numberOfObjectsDetected = 0;
     }
 
     // Called when another command which requires one or more of the same
     // subsystems is scheduled to run
-    protected void interrupted() 
+    protected void interrupted()
     {
     	this.end();
     }

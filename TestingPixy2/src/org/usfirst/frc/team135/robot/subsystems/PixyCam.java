@@ -4,7 +4,8 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
 
-//  import org.usfirst.frc.team135.robot.commands.GetPixyData;
+import org.usfirst.frc.team135.robot.commands.GetPixyData;
+import org.usfirst.frc.team135.robot.subsystems.EstablishI2CPixyConnection;;
 
 public class PixyCam extends Subsystem {
 	
@@ -15,106 +16,54 @@ private final int PIXY_CAM_DEVICE_ADDRESS = 0x54;
 //  Using I2C Port On Board, NOT through MXP
 private I2C pixy2 = new I2C(I2C.Port.kOnboard, PIXY_CAM_DEVICE_ADDRESS);
 
-//  Initiate a Transaction with Pixy2 by sending these two bytes first
-//  All communications with Pixy2 are Litte-Endian, meaning the LSB comes first
-private final int NO_CHECKSUM_SYNC_LSB = 0xAE;  //  LSB - Least Significant Byte
-private final int NO_CHECKSUM_SYNC_MSB = 0xC1;  //  MSB - Most Significant Byte
-
-//  Packet Type - 3rd Byte to Send
-////////////////////////////////////////////////////////////////////////////////////////////
-private final int PIXY_CAM_RESOLUTION_REQUEST_ADDRESS = 0x0C;
-private final int PIXY_CAM_RESOLUTION_RESPONSE_ADDRESS = 0x0D;
-
-private final int PIXY_CAM_VERSION_REQUEST_ADDRESS = 0x0E;
-private final int PIXY_CAM_VERSION_RESPONSE_ADDRESS = 0x0F;
-
-private final int PIXY_CAM_REQUEST_BLOCKS_ADDRESS = 0x20;
-private final int PIXY_CAM_RESPONSE_BLOCKS_ADDRESS = 0x21;
-////////////////////////////////////////////////////////////////////////////////////////////
-
-//Creating Arrays to Store Bytes to be Sent or Received
-////////////////////////////////////////////////////////////////////////////////////////////
-private final int MAX_NUM_BYTES_TO_SEND = 6;
-public final int MAX_NUM_BYTES_TO_READ = 142;  //  10 Detected Objects + 2 Checksum Bytes
-
-private byte[] dataToSend = new byte[MAX_NUM_BYTES_TO_SEND];
-private byte[] dataBytesRead = new byte[MAX_NUM_BYTES_TO_READ];
-////////////////////////////////////////////////////////////////////////////////////////////
-
-//  Used for Objects of a specific Signature
-////////////////////////////////////////////////////////////////////////////////////////////
-public static final int SIGNATURE_1 = 0b00000001;
-public static final int SIGNATURE_2 = 0b00000010;
-public static final int SIGNATURE_3 = 0b00000100;
-public static final int SIGNATURE_4 = 0b00001000;
-public static final int SIGNATURE_5 = 0b00010000;
-public static final int SIGNATURE_6 = 0b00100000;
-public static final int SIGNATURE_7 = 0b01000000;
-////////////////////////////////////////////////////////////////////////////////////////////
-
-public static enum RequestedDataType
-{
-	PixyVersion, Resolution, General
-}
+private EstablishI2CPixyConnection initializingPixy2 = new EstablishI2CPixyConnection();
 
 //  InitializeSubsystem()
-private static PixyCam instance;
+private static PixyCam instance;  //  OK
 
-//  RequestDataFromPixy()
-private int numberOfBytesToWrite;
-private final int DEFAULT_SIGNATURE = SIGNATURE_1;
-private final int MAX_BLOCKS_TO_DETECT = 0xFF;
-
-//  ModifyDataByte()
-private int modifiedDataByte;
-
-//  IsCorrectResponseAddress()
-private int responseAddress;
-private int correctResponseAddress = 0x00;  //  Giving Variable Initial Value
+//  ReadPixyResolution()
+private final int RESOLUTION_WIDTH = 0;
+private final int RESOLUTION_HEIGHT = 1;
+int[] resolution = new int[2];
+private final int NUMBER_OF_RESOLUTION_BYTES_TO_READ = 4;
 
 //  GetNumberOfBytesToRead()
-private int bytesToRead;
+int numberOfBytesToRead = 0;
 
-//  GetResolution()
-private int[] resolution = new int[2];
+//  isReadyToReadDataFromPixy()
+//  Constants
+private final int INITIALIZING_PIXY = 0;
+private final int GETTING_PIXY_RESOLUTION = 1;
 
-//  GetNumberOfObjectsDetectedAndOrganizeGeneralData()
-private int numberOfObjectsDetected;
-private int leastSignificantByte;
-private int mostSignificantByte;
-private int initialData;
+int phaseNumber = INITIALIZING_PIXY;
+boolean readyToReadData = false;
+
+//  GetGeneralPixyData()
+//  Constants
 public static final int MAX_OBJECTS_TO_STORE = 10;
+public static final int NUMBER_OF_GENERAL_DATA_BYTES = 14;
+public final int MAX_NUM_BYTES_TO_READ = MAX_OBJECTS_TO_STORE * NUMBER_OF_GENERAL_DATA_BYTES;
 private final int NUMBER_OF_CHARACTERISTICS_TO_STORE = 7;
-public static final int NUMBER_OF_IMPORTANT_CHARACTERISTICS = 5;
+
+//  Arrays
+byte[] dataBytesRead = new byte[MAX_NUM_BYTES_TO_READ];
 int[][] objectGeneralData = new int[MAX_OBJECTS_TO_STORE][NUMBER_OF_CHARACTERISTICS_TO_STORE];  //  Maximum of 10 Objects, each with 7 Characteristics
 
-//  GetSignatureOfObject()
-public static final int OBJECT_SIGNATURE = 0;
-
-//  GetXAndYCoordinatesOfObject()
-int[] coordinates = new int[2];
-public static final int X_ONLY = 1;
-public static final int Y_ONLY = 2;
-
-//  ModifyCoordinates()
-private int modifiedData;
-
-//  GetWidthAndHeightOfObject()
-int[] widthAndHeight = new int[2];
-public static final int WIDTH_ONLY = 3;
-public static final int HEIGHT_ONLY = 4;
-
-//  GetImportantObjectInformation()
-private int[] objectImportantData = new int[5];
-
-
+//  Array Indices of objectGeneralData
+public static final int SIGNATURE_INDEX = 0;
+public static final int X_COORDINATE_INDEX = 1;
+public static final int Y_COORDINATE_INDEX = 2;
+public static final int WIDTH_INDEX = 3;
+public static final int HEIGHT_INDEX = 4;
+public static final int INDEX_INDEX = 5;
+public static final int AGE_INDEX = 6;
 
 
     public void initDefaultCommand() {
         // Set the default command for a subsystem here.
         //setDefaultCommand(new MySpecialCommand());
     	
-    	//  setDefaultCommand(new GetPixyData());
+    	setDefaultCommand(new GetPixyData());
     }
     
     //  Used to create and instance of the PixyCam Subsystem in Robot.java
@@ -127,130 +76,121 @@ private int[] objectImportantData = new int[5];
     	return instance;
     }
     
-    private void ZeroDataBytesReadArray()
-    {
-    	for (int i = 0; i < MAX_NUM_BYTES_TO_READ; i++)
-    	{
-    		dataBytesRead[i] = 0;
-    	}
-    	return;
-    }
-    
-    public boolean InitializePixy()
+    private void ReadPixyResolution()
     {	
-    	this.RequestDataFromPixy(RequestedDataType.PixyVersion);
-    	Timer.delay(.0002);
+    	//  Local Declarations
+    	byte[] bytesRead = new byte[NUMBER_OF_RESOLUTION_BYTES_TO_READ];
     	
-    	return IsCorrectResponseAddress(RequestedDataType.PixyVersion);
+    	//  Executable Statements
+    	pixy2.readOnly(bytesRead, NUMBER_OF_RESOLUTION_BYTES_TO_READ);  //  Reading 4 Bytes
+    	
+    	resolution[RESOLUTION_WIDTH] = (initializingPixy2.ModifyDataByte(bytesRead[1]) << 8) + initializingPixy2.ModifyDataByte(bytesRead[0]);
+    	resolution[RESOLUTION_HEIGHT] = (initializingPixy2.ModifyDataByte(bytesRead[3]) << 8) + initializingPixy2.ModifyDataByte(bytesRead[2]);
+    	
+    	System.out.print("Pixy Resolution Width: ");
+    	System.out.println(resolution[0]);
+    	System.out.print("Pixy Resolution Height: ");
+    	System.out.println(resolution[1]);
+    	
+    	return;
     }
     
-    public void RequestDataFromPixy(RequestedDataType requestedDataType, int signatureCode, int maxBlocksToDetect)
+    private void GetNumberOfBytesToRead()
     {
-    	dataToSend[0] = (byte)NO_CHECKSUM_SYNC_LSB;
-    	dataToSend[1] = (byte)NO_CHECKSUM_SYNC_MSB;
+    	//  Local Declarations
+    	byte[] bytesRead = new byte[2];
     	
-    	switch(requestedDataType)
+    	//  Executable Statements
+    	pixy2.readOnly(bytesRead, 1);
+    	numberOfBytesToRead = initializingPixy2.ModifyDataByte(bytesRead[0]);
+    	
+    	pixy2.readOnly(bytesRead, 2);  //  Reading the Next Two Bytes because we ignore them
+    	
+    	return;
+    }
+    
+    //  Used to Modify Coordinates for a 4-Quadrant Plane, not just a single Quadrant
+    private int ModifyData(int data, int index)
+    {
+    	if (index == X_COORDINATE_INDEX)
     	{
-	    	case PixyVersion:
-	    		dataToSend[2] = PIXY_CAM_VERSION_REQUEST_ADDRESS;
-	    		dataToSend[3] = 0x00;
-	    		numberOfBytesToWrite = 4;
-	    		break;
-	    	case Resolution:
-	    		dataToSend[2] = PIXY_CAM_RESOLUTION_REQUEST_ADDRESS;
-	    		dataToSend[3] = 0x01;
-	    		dataToSend[4] = 0x00;
-	    		numberOfBytesToWrite = 5;
-	    		break;
-	    	case General:
-	        	dataToSend[2] = (byte)PIXY_CAM_REQUEST_BLOCKS_ADDRESS;
-	        	dataToSend[3] = (byte)0x02;
-	        	dataToSend[4] = (byte)signatureCode;
-	        	dataToSend[5] = (byte)maxBlocksToDetect;
-	        	numberOfBytesToWrite = 6;
-	        	break;
+    		data = data - (int)(.5 * resolution[RESOLUTION_WIDTH]);
+    	}
+    	else if (index == Y_COORDINATE_INDEX)
+    	{
+    		data = (int)(.5 * resolution[RESOLUTION_HEIGHT]) - data;
     	}
     	
-    	pixy2.writeBulk(dataToSend, numberOfBytesToWrite);
+    	return data;
+    }
+    
+	public boolean isReadyToReadDataFromPixy()
+	{
+		switch (phaseNumber)
+		{
+			case INITIALIZING_PIXY:
+				readyToReadData = false;
+				
+				if (initializingPixy2.InitializePixy(pixy2))
+				{
+					System.out.println("Pixy Initialized");
+					phaseNumber++;
+				}
+				else
+				{
+					System.out.println("Pixy Initializing...");
+					break;
+				}
+			case GETTING_PIXY_RESOLUTION:
+	    		initializingPixy2.RequestDataFromPixy(EstablishI2CPixyConnection.RequestedDataType.Resolution);
+	    		Timer.delay(.002);
+	    		
+	    		if (initializingPixy2.IsCorrectResponseAddress(EstablishI2CPixyConnection.RequestedDataType.Resolution))
+	    		{
+	    			this.GetNumberOfBytesToRead();
+	    			this.ReadPixyResolution();
+	    			readyToReadData = true;
+	    		}
+	    		else
+	    		{
+	    			System.out.println("Receiving Pixy Resolution...");
+	    		}
+		}
+		
+		return readyToReadData;
+	}
+	
+    public int GetNumberOfObjectsDetected(int signatureOfObject)
+    {
+    	//  Local Declarations
+    	int numberOfObjectsDetected = 0;
     	
-    	return;
+    	//  Executable Statements
+    	initializingPixy2.RequestDataFromPixy(EstablishI2CPixyConnection.RequestedDataType.General, signatureOfObject);
+    	Timer.delay(.002);
+    	
+    	if (initializingPixy2.IsCorrectResponseAddress(EstablishI2CPixyConnection.RequestedDataType.General))
+    	{
+    		this.GetNumberOfBytesToRead();
+    		numberOfObjectsDetected = (numberOfBytesToRead / NUMBER_OF_GENERAL_DATA_BYTES);
+    	}
+    	else 
+    	{
+    		System.out.println("Error Receiving General Data From Pixy");
+    		numberOfObjectsDetected = -1;
+    	}
+    	
+    	return numberOfObjectsDetected;
     }
     
-    public void RequestDataFromPixy(RequestedDataType requestedDataType, int signatureCode)
-    {
-    	this.RequestDataFromPixy(requestedDataType, signatureCode, MAX_BLOCKS_TO_DETECT);
-    	return;
-    }
-    
-    public void RequestDataFromPixy(RequestedDataType requestedDataType)
-    {
-    	this.RequestDataFromPixy(requestedDataType, DEFAULT_SIGNATURE);
-    	return;
-    }
-    
-    private int ModifyDataByte(byte dataByte)
+    public int[][] GetGeneralPixyData(int numberOfObjectsDetected)
     {	
-    	if (dataByte < 0)
-    	{
-    		modifiedDataByte = (256 + ((int)dataByte));
-    	}
-    	else
-    	{
-    		modifiedDataByte = (int)dataByte;
-    	}
-    	return modifiedDataByte;
-    }
-    
-    public boolean IsCorrectResponseAddress(RequestedDataType requestedDataType)
-    {
-    	pixy2.readOnly(dataBytesRead, 3);
-    	responseAddress = ModifyDataByte(dataBytesRead[2]);
+    	//  Local Declarations
+    	int leastSignificantByte = 0;
+    	int mostSignificantByte = 0;
+    	int initialDataValue = 0;
     	
-    	switch (requestedDataType)
-    	{
-	    	case PixyVersion:
-	    		correctResponseAddress = PIXY_CAM_VERSION_RESPONSE_ADDRESS;
-	    		break;
-	    	case Resolution:
-	    		correctResponseAddress = PIXY_CAM_RESOLUTION_RESPONSE_ADDRESS;
-	    		break;
-	    	case General:
-	    		correctResponseAddress = PIXY_CAM_RESPONSE_BLOCKS_ADDRESS;
-	    		break;
-    	}
-    	
-    	return (responseAddress == correctResponseAddress);
-    }
-    
-    public int GetNumberOfBytesToRead()
-    {
-    	pixy2.readOnly(dataBytesRead, 1);
-    	bytesToRead = ModifyDataByte(dataBytesRead[0]);
-    	
-    	pixy2.readOnly(dataBytesRead, 2);  //  Reading the Next Two Bytes because we ignore them
-    	return bytesToRead;
-    }
-    
-    public void ClearBuffer(int numberOfBytesToRead)
-    {
-    	pixy2.readOnly(dataBytesRead, numberOfBytesToRead);
-    	return;
-    }
-    
-    public int[] GetResolution(int numberOfBytesToRead)
-    {	
-    	pixy2.readOnly(dataBytesRead, numberOfBytesToRead);  //  Reading 4 Bytes
-    	
-    	resolution[0] = (ModifyDataByte(dataBytesRead[1]) << 8) + ModifyDataByte(dataBytesRead[0]);
-    	resolution[1] = (ModifyDataByte(dataBytesRead[3]) << 8) + ModifyDataByte(dataBytesRead[2]);
-    	
-    	return resolution;
-    }
-    
-    public int GetNumberOfObjectsDetectedAndOrganizeGeneralData(int numberOfBytesToRead)
-    {	
-    	numberOfObjectsDetected = numberOfBytesToRead / 14;
-    	this.ZeroDataBytesReadArray();
+    	//  Executable Statements
     	pixy2.readOnly(dataBytesRead, numberOfBytesToRead);
     	
     	for (int i = 0; i < numberOfObjectsDetected; i++)
@@ -259,95 +199,29 @@ private int[] objectImportantData = new int[5];
     		{
     			switch (j)
     			{
-	    			case 0:  //  Signature Number
-	    				objectGeneralData[i][j] = ModifyDataByte(dataBytesRead[(7 * i)]);
+	    			case SIGNATURE_INDEX:  //  Signature Number
+	    				objectGeneralData[i][j] = initializingPixy2.ModifyDataByte(dataBytesRead[(7 * i)]);
 	    				break;
-	    			case 1:  //  X Coordinate
-	    			case 2:  //  Y Coordinate
-	    			case 3:  //  Width
-	    			case 4:  //  Height
-	    				leastSignificantByte = ModifyDataByte(dataBytesRead[(7 * i) + (2 * j)]);
-	    				mostSignificantByte = ModifyDataByte(dataBytesRead[(7 * i) + (2 * j) + 1]);
-	    				initialData = (mostSignificantByte << 8) + leastSignificantByte;
-	    				objectGeneralData[i][j] = ModifyData(initialData, j);
+	    			case X_COORDINATE_INDEX:  //  X Coordinate
+	    			case Y_COORDINATE_INDEX:  //  Y Coordinate
+	    			case WIDTH_INDEX:  //  Width
+	    			case HEIGHT_INDEX:  //  Height
+	    				leastSignificantByte = initializingPixy2.ModifyDataByte(dataBytesRead[(7 * i) + (2 * j)]);
+	    				mostSignificantByte = initializingPixy2.ModifyDataByte(dataBytesRead[(7 * i) + (2 * j) + 1]);
+	    				initialDataValue = (mostSignificantByte << 8) + leastSignificantByte;
+	    				objectGeneralData[i][j] = ModifyData(initialDataValue, j);
 	    				break;
-	    			case 5:  //  Index
-	    				objectGeneralData[i][j] = ModifyDataByte(dataBytesRead[(7 * i) + 12]);
+	    			case INDEX_INDEX:  //  Index
+	    				objectGeneralData[i][j] = initializingPixy2.ModifyDataByte(dataBytesRead[(7 * i) + 12]);
 	    				break;
-	    			case 6:  //  Age
-	    				objectGeneralData[i][j] = ModifyDataByte(dataBytesRead[(7 * i) + 13]);
+	    			case AGE_INDEX:  //  Age
+	    				objectGeneralData[i][j] = initializingPixy2.ModifyDataByte(dataBytesRead[(7 * i) + 13]);
 	    				break;
     			}
     		}
     	}
     	
-    	return numberOfObjectsDetected;
-    }
-    
-    public int GetSignatureOfObject(int objectNumber)
-    {
-    	return objectGeneralData[objectNumber][0];
-    }
-    
-    public int[] GetXAndYCoordinatesOfObject(int objectNumber)
-    {
-    	coordinates[0] = objectGeneralData[objectNumber][1];
-    	coordinates[1] = objectGeneralData[objectNumber][2];
-    	return coordinates;
-    }
-    
-    private int GetXAndYCoordinatesOfObject(int objectNumber, int xOrYOnly)
-    {
-    	return objectGeneralData[objectNumber][xOrYOnly];
-    }
-    
-    //  Used to Modify Coordinates for a 4-Quadrant Plane, not just a single Quadrant
-    public int ModifyData(int data, int xOrYOnly)
-    {
-    	modifiedData = data;
-    	
-    	if (xOrYOnly == X_ONLY)
-    	{
-    		modifiedData = data - (int)(.5 * resolution[0]);
-    	}
-    	else if (xOrYOnly == Y_ONLY)
-    	{
-    		modifiedData = (int)(.5 * resolution[1]) - data;
-    	}
-    	return modifiedData;
-    }
-    
-    
-    public int[] GetWidthAndHeightOfObject(int objectNumber)
-    {
-    	widthAndHeight[0] = objectGeneralData[objectNumber][3];
-    	widthAndHeight[1] = objectGeneralData[objectNumber][4];
-    	return widthAndHeight;
-    }
-    
-    private int GetWidthAndHeightOfObject(int objectNumber, int widthOrHeightOnly)
-    {
-    	return objectGeneralData[objectNumber][widthOrHeightOnly];
-    }
-    
-    public int[] GetImportantObjectInformation(int objectNumber)
-    {
-    	objectImportantData[0] = this.GetSignatureOfObject(objectNumber);
-    	objectImportantData[1] = this.GetXAndYCoordinatesOfObject(objectNumber, X_ONLY);
-    	objectImportantData[2] = this.GetXAndYCoordinatesOfObject(objectNumber, Y_ONLY);
-    	objectImportantData[3] = this.GetWidthAndHeightOfObject(objectNumber,  WIDTH_ONLY);
-    	objectImportantData[4] = this.GetWidthAndHeightOfObject(objectNumber,  HEIGHT_ONLY);
-    	return objectImportantData;
-    }
-    
-    public int GetIndexOfObject(int objectNumber)
-    {
-    	return objectGeneralData[objectNumber][5];
-    }
-    
-    public int GetAgeOfObject(int objectNumber)
-    {
-    	return objectGeneralData[objectNumber][6];
+    	return objectGeneralData;
     }
     
 }

@@ -26,7 +26,11 @@ public class DriveTrain extends Subsystem {
 	SpeedControllerGroup rightSide = new SpeedControllerGroup(frontRightMotor, rearRightMotor);
 	
 	DifferentialDrive chassis = new DifferentialDrive(leftSide, rightSide);
-
+	
+	public static enum DirectionToTurn
+	{
+		Left, Right
+	}
 	
 	//  TankDrive()
 	private final boolean SQUARED_INPUTS = false;
@@ -34,9 +38,11 @@ public class DriveTrain extends Subsystem {
 	//  InitializeCurvatureDrive()
 	private final double INITIAL_QUICK_STOP_ALPHA_VALUE = 1.0;
 	
-	//  DriveCurvature()
-	private final double P_VALUE = .05;	
-	private final boolean QUICK_TURN_DISABLED = false;
+	//  DriveStraightTowardsBlockWithPixy()
+	private final boolean QUICK_STOP_DISABLED = false;
+	private final double DRIVE_STRAIGHT_P_VALUE = .05;
+	private double zRotationPower = 0;
+	
 
     public void initDefaultCommand() {
         // Set the default command for a subsystem here.
@@ -59,23 +65,34 @@ public class DriveTrain extends Subsystem {
     	return;
     }
     
-    public void DriveIndividualMotor(int talonID)
+    public void TurnDriveTrain(double driveTrainMotorPower, DirectionToTurn directionToTurn)
     {
-    	if (talonID == RobotMap.DRIVE_TRAIN_FRONT_LEFT_TALON_ID)
+    	driveTrainMotorPower = Math.abs(driveTrainMotorPower);
+    	
+    	if (directionToTurn == DirectionToTurn.Left)
     	{
-    		frontLeftMotor.set(.2);
+    		this.TankDrive(-driveTrainMotorPower, driveTrainMotorPower);
     	}
-    	else if (talonID == RobotMap.DRIVE_TRAIN_FRONT_RIGHT_TALON_ID)
+    	else if (directionToTurn == DirectionToTurn.Right)
     	{
-    		frontRightMotor.set(.2);
+    		this.TankDrive(driveTrainMotorPower, -driveTrainMotorPower);
     	}
-    	else if (talonID == RobotMap.DRIVE_TRAIN_REAR_LEFT_TALON_ID)
+    	
+    	return;
+    }
+    
+    public void DriveIndividualMotor(int talonID, double motorPower)
+    {
+    	switch (talonID)
     	{
-    		rearLeftMotor.set(.2);
-    	}
-    	else if (talonID == RobotMap.DRIVE_TRAIN_REAR_RIGHT_TALON_ID)
-    	{
-    		rearRightMotor.set(.2);
+	    	case RobotMap.DRIVE_TRAIN_FRONT_LEFT_TALON_ID:
+	    		frontLeftMotor.set(motorPower);
+	    	case RobotMap.DRIVE_TRAIN_FRONT_RIGHT_TALON_ID:
+	    		frontRightMotor.set(motorPower);
+	    	case RobotMap.DRIVE_TRAIN_REAR_LEFT_TALON_ID:
+	    		rearLeftMotor.set(motorPower);
+	    	case RobotMap.DRIVE_TRAIN_REAR_RIGHT_TALON_ID:
+	    		rearRightMotor.set(motorPower);
     	}
     	return;
     }
@@ -84,17 +101,13 @@ public class DriveTrain extends Subsystem {
     {
     	chassis.setQuickStopAlpha(INITIAL_QUICK_STOP_ALPHA_VALUE);
     	chassis.curvatureDrive(0.0, 0.0, true);
-    	
     	return;
     }
     
-    public void DriveCurvature(double motorPower, int pixyXCoordinate)
+    public void DriveStraightTowardsBlockWithPixy(double motorPower, int pixyXCoordinate)
     {
-    	double zRotationPower;
-    	
-    	zRotationPower = pixyXCoordinate * P_VALUE;
-    	chassis.curvatureDrive(motorPower, zRotationPower, QUICK_TURN_DISABLED);
-    	
+    	zRotationPower = pixyXCoordinate * DRIVE_STRAIGHT_P_VALUE;
+    	chassis.curvatureDrive(motorPower, zRotationPower, QUICK_STOP_DISABLED);
     	return;
     }
     
