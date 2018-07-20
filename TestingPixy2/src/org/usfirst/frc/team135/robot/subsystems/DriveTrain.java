@@ -6,11 +6,12 @@ import org.usfirst.frc.team135.robot.RobotMap;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import org.usfirst.frc.team135.robot.commands.DriveWithJoysticks;
+import edu.wpi.first.wpilibj.PIDOutput;
 
 /**
  *
  */
-public class DriveTrain extends Subsystem {
+public class DriveTrain extends Subsystem implements PIDOutput{
 
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
@@ -40,7 +41,7 @@ public class DriveTrain extends Subsystem {
 	
 	//  DriveStraightTowardsBlockWithPixy()
 	private final boolean QUICK_STOP_DISABLED = false;
-	private final double DRIVE_STRAIGHT_P_VALUE = .05;
+	private final double DRIVE_STRAIGHT_P_VALUE = .015;
 	private double zRotationPower = 0;
 	
 
@@ -66,9 +67,7 @@ public class DriveTrain extends Subsystem {
     }
     
     public void TurnDriveTrain(double driveTrainMotorPower, DirectionToTurn directionToTurn)
-    {
-    	driveTrainMotorPower = Math.abs(driveTrainMotorPower);
-    	
+    {	
     	if (directionToTurn == DirectionToTurn.Left)
     	{
     		this.TankDrive(-driveTrainMotorPower, driveTrainMotorPower);
@@ -79,6 +78,13 @@ public class DriveTrain extends Subsystem {
     	}
     	
     	return;
+    }
+    
+    //  Positive driveTrainMotorPower -> Robot Turns Right
+    //  Negative driveTrainMotorPower -> Robot Turns Left
+    public void TurnDriveTrain(double driveTrainMotorPower)
+    {
+    	this.TurnDriveTrain(driveTrainMotorPower, DirectionToTurn.Right);
     }
     
     public void DriveIndividualMotor(int talonID, double motorPower)
@@ -110,6 +116,12 @@ public class DriveTrain extends Subsystem {
     	chassis.curvatureDrive(motorPower, zRotationPower, QUICK_STOP_DISABLED);
     	return;
     }
+
+	@Override
+	public void pidWrite(double output) {
+		// TODO Auto-generated method stub
+		this.TurnDriveTrain(output);
+	}
     
 }
 

@@ -28,7 +28,7 @@ public class OI {
 	private static JoystickButton rightTrigger = new JoystickButton(rightJoystick, TRIGGER_BUTTON);
 	
 	//  DeadbandJoystickValue()
-	private double DRIVE_TRAIN_JOYSTICK_DEADBAND = .08;
+	private double DRIVE_TRAIN_JOYSTICK_DEADBAND = .15;
 	private double returnJoystickValue;
 	
 	//  GetJoystickYValue()

@@ -3,11 +3,13 @@ package org.usfirst.frc.team135.robot.subsystems;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.PIDSource;
+import edu.wpi.first.wpilibj.PIDSourceType;
 
 import org.usfirst.frc.team135.robot.commands.GetPixyData;
 import org.usfirst.frc.team135.robot.subsystems.EstablishI2CPixyConnection;;
 
-public class PixyCam extends Subsystem {
+public class PixyCam extends Subsystem implements PIDSource {
 	
 //  I2C Device Address of the Pixy2
 private final int PIXY_CAM_DEVICE_ADDRESS = 0x54;
@@ -223,6 +225,29 @@ public static final int AGE_INDEX = 6;
     	
     	return objectGeneralData;
     }
+
+    //  PIDSourceType is an enum
+    //  Has two choices: kDisplacement and kRate
+    //  Since we are doing Position PID, we want kDisplacement
+    PIDSourceType pidSourceType;
+    
+	@Override
+	public void setPIDSourceType(PIDSourceType pidSource) {
+		// TODO Auto-generated method stub
+		pidSourceType = pidSource;
+	}
+
+	@Override
+	public PIDSourceType getPIDSourceType() {
+		// TODO Auto-generated method stub
+		return pidSourceType;
+	}
+
+	@Override
+	public double pidGet() {
+		// TODO Auto-generated method stub
+		return objectGeneralData[0][X_COORDINATE_INDEX];
+	}
     
 }
 

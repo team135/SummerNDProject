@@ -20,7 +20,7 @@ public class DriveStraightWithPixy extends Command {
 	
 	private int[][] generalDataBytesRead = new int[PixyCam.MAX_OBJECTS_TO_STORE][PixyCam.NUMBER_OF_GENERAL_DATA_BYTES];
 	
-	private final double DRIVE_TRAIN_MOTOR_POWER = .3;
+	private final double DRIVE_TRAIN_MOTOR_POWER = .35;
 	
 	private boolean stopDriving;
 	private final int OBJECT_WIDTH_THRESHOLD = 150;
