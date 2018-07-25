@@ -65,7 +65,7 @@ public static final int AGE_INDEX = 6;
         // Set the default command for a subsystem here.
         //setDefaultCommand(new MySpecialCommand());
     	
-    	setDefaultCommand(new GetPixyData());
+    	//  setDefaultCommand(new GetPixyData());
     }
     
     //  Used to create and instance of the PixyCam Subsystem in Robot.java

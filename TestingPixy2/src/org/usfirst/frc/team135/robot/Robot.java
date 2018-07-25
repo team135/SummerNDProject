@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 import org.usfirst.frc.team135.robot.subsystems.PixyCam;
 import org.usfirst.frc.team135.robot.subsystems.DriveTrain;
+import org.usfirst.frc.team135.robot.subsystems.Limelight;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -31,6 +32,7 @@ public class Robot extends TimedRobot {
 	public static OI oi;
 	public static PixyCam pixyCam;
 	public static DriveTrain driveTrain;
+	public static Limelight limelight;
 
 	Command m_autonomousCommand;
 	SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -44,6 +46,7 @@ public class Robot extends TimedRobot {
 		oi = OI.InitializeOperatorInterface();
 		pixyCam = PixyCam.InitializeSubsystem();
 		driveTrain = DriveTrain.InitializeDriveTrain();
+		limelight = Limelight.InitializeSubystem();
 		
 		
 		OI.InitializeButtonsWithCommands();
