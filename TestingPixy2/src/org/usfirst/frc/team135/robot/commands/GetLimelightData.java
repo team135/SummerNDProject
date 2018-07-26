@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class GetLimelightData extends Command {
 
+	//  Creates an Array to Store the Data from the Limelight
 	double[] limelightData = new double[Limelight.NUMBER_OF_LIMELIGHT_CHARACTERISTICS];
 	
     public GetLimelightData()
@@ -23,7 +24,9 @@ public class GetLimelightData extends Command {
     // Called just before this Command runs the first time
     protected void initialize()
     {
-    	Robot.limelight.TurnLEDOnOff(Limelight.LED_OFF);
+    	Robot.limelight.SetCameraPipeline(Limelight.YELLOW_BLOCK_PIPELINE);
+    	Robot.limelight.SetCameraMode(Limelight.VISION_PROCESSOR);
+    	Robot.limelight.SetLEDMode(Limelight.LED_OFF);  //  Turns off LED to Track the Yellow Block
     }
 
     // Called repeatedly when this Command is scheduled to run

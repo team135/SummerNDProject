@@ -7,9 +7,9 @@ import org.usfirst.frc.team135.robot.commands.TurnTowardsObjectWithPixy;
 /**
  *
  */
-public class DriveTowardsObjectWithPixy extends CommandGroup {
+public class DriveAndTrackBlockWithVision extends CommandGroup {
 
-    public DriveTowardsObjectWithPixy() {
+    public DriveAndTrackBlockWithVision() {
         // Add Commands here:
         // e.g. addSequential(new Command1());
         //      addSequential(new Command2());

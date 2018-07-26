@@ -15,16 +15,24 @@ public class Limelight extends Subsystem {
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
 	
+	
+	//  Instance of the Subsystem that is used in Robot.java
 	private static Limelight instance;
 	
+	//  Default Instance of NetworkTable that is created when the program is started
 	NetworkTableInstance networkTableInstance = NetworkTableInstance.getDefault();
+	
+//  Reading and Writing from the "limelight" Table in NetworkTables
 	NetworkTable limelightTable = networkTableInstance.getTable("limelight");
 	
+	//  NetworkTableEntries for Reading Data from Limelight
 	NetworkTableEntry validTargetEntry = limelightTable.getEntry("tv");
 	NetworkTableEntry horizontalOffsetEntry = limelightTable.getEntry("tx");
 	NetworkTableEntry verticalOffsetEntry = limelightTable.getEntry("ty");
 	NetworkTableEntry targetAreaEntry = limelightTable.getEntry("ta");
 	NetworkTableEntry targetSkewEntry = limelightTable.getEntry("tl");
+	
+	//  NetworkTableEntries for Writing Data to Limelight
 	NetworkTableEntry ledModeEntry = limelightTable.getEntry("ledMode");
 	NetworkTableEntry cameraModeEntry = limelightTable.getEntry("camMode");
 	NetworkTableEntry limelightPipelineEntry = limelightTable.getEntry("pipeline");
@@ -38,11 +46,22 @@ public class Limelight extends Subsystem {
 	public static final int TARGET_AREA = 3;
 	public static final int TARGET_SKEW = 4;
 	
+	//  Stores the 5 Main Characteristics of the Target that the Limelight returns
 	double[] limelightData = new double[NUMBER_OF_LIMELIGHT_CHARACTERISTICS];
 	
-	public static boolean LED_ON = true;
-	public static boolean LED_OFF = false;
+	//  LED Modes
+	public static int LED_ON = 0;
+	public static int LED_OFF = 1;
+	public static int LED_BLINKING = 2;
+	
+	//  Camera Modes
+	public static int VISION_PROCESSOR = 0;
+	public static int DRIVER_CAMERA = 1; 
+	
+	//  Pipeline Options
+	public static int YELLOW_BLOCK_PIPELINE = 0;
 
+	
     public void initDefaultCommand() {
         // Set the default command for a subsystem here.
         //setDefaultCommand(new MySpecialCommand());
@@ -50,6 +69,7 @@ public class Limelight extends Subsystem {
     	setDefaultCommand(new GetLimelightData());
     }
     
+    //  Method used in Robot.java to Initialize the Subsystem to be used in the Commands
     public static Limelight InitializeSubystem()
     {
     	if (instance == null)
@@ -59,6 +79,7 @@ public class Limelight extends Subsystem {
     	return instance;
     }
     
+    //  Gets the Target Data and returns it in a Double Array
     public double[] GetLimelightData()
     {
     	limelightData[VALID_TARGET] = validTargetEntry.getDouble(0.0);
@@ -70,37 +91,46 @@ public class Limelight extends Subsystem {
     	return limelightData;
     }
     
+    //  Returns True if a Valid Target exists with the currently set Vision Pipeline
+    //  Returns False if there are no Valid Targets
     public boolean isTargetsExist()
     {
-    	double value;
-    	boolean returnValue;
+    	double numberOfValidTargets;
+    	boolean targetsExist;
     	
-    	value = (validTargetEntry.getDouble(0.0) + horizontalOffsetEntry.getDouble(0.0) 
-    			+ verticalOffsetEntry.getDouble(0.0) + targetAreaEntry.getDouble(0.0) 
-    			+ targetSkewEntry.getDouble(0.0));
+    	numberOfValidTargets = validTargetEntry.getDouble(0.0);
     	
-    	if (value != 0.0)
+    	if (numberOfValidTargets > 0.0)
     	{
-    		returnValue = true;
+    		targetsExist = true;
     	}
-    	else
+    	else 
     	{
-    		returnValue = false;
+    		targetsExist = false;
     	}
     	
-    	return returnValue;
+    	return targetsExist;
     }
     
-    public void TurnLEDOnOff(boolean onOrOff)
+    //  Sets the LED on the Limelight to be On, Off, or Blinking
+    public void SetLEDMode(int onOrOff)
     {
-    	if (onOrOff = LED_ON)
-    	{
-    		ledModeEntry.setDouble(0.0);
-    	}
-    	else if (onOrOff == LED_OFF)
-    	{
-    		ledModeEntry.setDouble(1.0);
-    	}
+    	ledModeEntry.setNumber(onOrOff);
+    	return;
+    }
+    
+    //  Sets the Limelight to either be an Vision Processor or just a Driver Camera (No Vision Processing)
+    public void SetCameraMode(int cameraMode)
+    {
+    	cameraModeEntry.setNumber(cameraMode);
+    	return;
+    }
+    
+    //  Sets the Vision Pipeline to retrieve data from
+    public void SetCameraPipeline(int pipeline)
+    {
+    	limelightPipelineEntry.setNumber(pipeline);
+    	return;
     }
 }
 
