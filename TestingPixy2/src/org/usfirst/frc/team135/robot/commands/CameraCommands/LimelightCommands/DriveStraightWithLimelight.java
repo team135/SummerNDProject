@@ -4,26 +4,35 @@ import org.usfirst.frc.team135.robot.Robot;
 import org.usfirst.frc.team135.robot.subsystems.Limelight;
 
 import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  *
  */
-public class GetLimelightData extends Command {
+public class DriveStraightWithLimelight extends Command {
 
 	//  Creates an Array to Store the Data from the Limelight
 	private double[] limelightData = new double[Limelight.NUMBER_OF_LIMELIGHT_CHARACTERISTICS];
 	
-    public GetLimelightData()
+	private final double DRIVE_TRAIN_MOTOR_POWER = .35;
+	private final double LIMELIGHT_DRIVE_STRAIGHT_P_VALUE = .06;
+	private final double TARGET_AREA_THRESHOLD = .5;
+	
+    public DriveStraightWithLimelight()
     {
         // Use requires() here to declare subsystem dependencies
         // eg. requires(chassis);
     	requires(Robot.limelight);
+    	requires(Robot.driveTrain);
+    	
     }
 
     // Called just before this Command runs the first time
     protected void initialize()
     {
+    	//  Initializing Drive Train
+    	Robot.driveTrain.InitializeCurvatureDrive();
+    	
+    	//  Initializing Limelight
     	Robot.limelight.SetCameraPipeline(Limelight.YELLOW_BLOCK_PIPELINE);
     	Robot.limelight.SetCameraMode(Limelight.VISION_PROCESSOR);
     	Robot.limelight.SetLEDMode(Limelight.LED_OFF);  //  Turns off LED to Track the Yellow Block
@@ -33,30 +42,25 @@ public class GetLimelightData extends Command {
     protected void execute()
     {
     	limelightData = Robot.limelight.GetLimelightData();
-    	
-    	SmartDashboard.putNumber("Valid Target", limelightData[Limelight.VALID_TARGET]);
-    	SmartDashboard.putNumber("Horizontal Offset", limelightData[Limelight.HORIZONTAL_OFFSET]);
-    	SmartDashboard.putNumber("Vertical Offset", limelightData[Limelight.VERTICAL_OFFSET]);
-    	SmartDashboard.putNumber("Target Area", limelightData[Limelight.TARGET_AREA]);
-    	SmartDashboard.putNumber("Target Skew", limelightData[Limelight.TARGET_SKEW]);
+    	Robot.driveTrain.DriveStraightTowardsBlockWithPixy(DRIVE_TRAIN_MOTOR_POWER, limelightData[Limelight.HORIZONTAL_OFFSET], LIMELIGHT_DRIVE_STRAIGHT_P_VALUE);
     }
 
     // Make this return true when this Command no longer needs to run execute()
     protected boolean isFinished()
     {
-        return false;
+        return (limelightData[Limelight.TARGET_AREA] >= TARGET_AREA_THRESHOLD);
     }
 
     // Called once after isFinished returns true
     protected void end()
     {
-    	
+    	Robot.driveTrain.TankDrive(0.0, 0.0);
     }
 
     // Called when another command which requires one or more of the same
     // subsystems is scheduled to run
     protected void interrupted()
     {
-    	
+    	this.end();
     }
 }

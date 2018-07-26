@@ -23,6 +23,7 @@ public class DriveStraightWithPixy extends Command {
 	private final double DRIVE_TRAIN_MOTOR_POWER = .35;
 	
 	private boolean stopDriving;
+	private final double PIXY_DRIVE_STRAIGHT_P_VALUE = .015;
 	private final int OBJECT_WIDTH_THRESHOLD = 150;
 
     public DriveStraightWithPixy() 
@@ -56,7 +57,7 @@ public class DriveStraightWithPixy extends Command {
 	    		if (numberOfObjectsDetected > 0)
 	    		{
 	    			generalDataBytesRead = Robot.pixyCam.GetGeneralPixyData(numberOfObjectsDetected);
-	    			Robot.driveTrain.DriveStraightTowardsBlockWithPixy(DRIVE_TRAIN_MOTOR_POWER,  generalDataBytesRead[0][PixyCam.X_COORDINATE_INDEX]);
+	    			Robot.driveTrain.DriveStraightTowardsBlockWithPixy(DRIVE_TRAIN_MOTOR_POWER, (double)generalDataBytesRead[0][PixyCam.X_COORDINATE_INDEX], PIXY_DRIVE_STRAIGHT_P_VALUE);
 	    			stopDriving = generalDataBytesRead[0][PixyCam.WIDTH_INDEX] >= OBJECT_WIDTH_THRESHOLD ? true : false;
 	    		}
 	    		else 

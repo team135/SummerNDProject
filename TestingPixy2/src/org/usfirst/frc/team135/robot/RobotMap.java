@@ -29,6 +29,13 @@ public class RobotMap {
 	public static final int DRIVE_TRAIN_REAR_LEFT_TALON_ID = 11;
 	public static final int DRIVE_TRAIN_REAR_RIGHT_TALON_ID = 12;
 	
+	public static enum DesignatedCamera
+	{
+		PixyCamera, Limelight
+	}
+	
+	public static final DesignatedCamera CAMERA_TO_USE = DesignatedCamera.Limelight;
+	
 
 	
 }

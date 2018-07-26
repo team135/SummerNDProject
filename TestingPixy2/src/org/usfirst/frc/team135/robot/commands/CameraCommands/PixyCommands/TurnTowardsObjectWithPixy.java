@@ -24,6 +24,8 @@ public class TurnTowardsObjectWithPixy extends Command {
 	
 	boolean doneTurning;
 	
+	private final double TURNING_MOTOR_POWER = .35;
+	
 
     public TurnTowardsObjectWithPixy()
     {
@@ -63,7 +65,7 @@ public class TurnTowardsObjectWithPixy extends Command {
 	    		}
 	    		else if (numberOfObjectsDetected == 0)
 	    		{
-	    			Robot.driveTrain.TurnDriveTrain(.35, DriveTrain.DirectionToTurn.Left);
+	    			Robot.driveTrain.TurnDriveTrain(TURNING_MOTOR_POWER, DriveTrain.DirectionToTurn.Left);
 	    		}
     	}
     	

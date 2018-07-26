@@ -41,7 +41,6 @@ public class DriveTrain extends Subsystem implements PIDOutput{
 	
 	//  DriveStraightTowardsBlockWithPixy()
 	private final boolean QUICK_STOP_DISABLED = false;
-	private final double DRIVE_STRAIGHT_P_VALUE = .015;
 	private double zRotationPower = 0;
 	
 
@@ -110,9 +109,9 @@ public class DriveTrain extends Subsystem implements PIDOutput{
     	return;
     }
     
-    public void DriveStraightTowardsBlockWithPixy(double motorPower, int pixyXCoordinate)
+    public void DriveStraightTowardsBlockWithPixy(double motorPower, double xValue, double pValue)
     {
-    	zRotationPower = pixyXCoordinate * DRIVE_STRAIGHT_P_VALUE;
+    	zRotationPower = xValue * pValue;
     	chassis.curvatureDrive(motorPower, zRotationPower, QUICK_STOP_DISABLED);
     	return;
     }
