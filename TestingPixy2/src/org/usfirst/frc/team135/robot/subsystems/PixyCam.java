@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
 
-import org.usfirst.frc.team135.robot.commands.GetPixyData;
+import org.usfirst.frc.team135.robot.commands.CameraCommands.PixyCommands.GetPixyData;
 import org.usfirst.frc.team135.robot.subsystems.EstablishI2CPixyConnection;;
 
 public class PixyCam extends Subsystem implements PIDSource {

@@ -1,8 +1,9 @@
-package org.usfirst.frc.team135.robot.commands;
+package org.usfirst.frc.team135.robot.commands.CameraCommands;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
-import org.usfirst.frc.team135.robot.commands.DriveStraightWithPixy;
-import org.usfirst.frc.team135.robot.commands.TurnTowardsObjectWithPixy;
+
+import org.usfirst.frc.team135.robot.commands.CameraCommands.PixyCommands.DriveStraightWithPixy;
+import org.usfirst.frc.team135.robot.commands.CameraCommands.PixyCommands.TurnTowardsObjectWithPixy;
 
 /**
  *

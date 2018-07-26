@@ -1,17 +1,16 @@
-package org.usfirst.frc.team135.robot.commands;
+package org.usfirst.frc.team135.robot.commands.CameraCommands.PixyCommands;
+
+import org.usfirst.frc.team135.robot.Robot;
+import org.usfirst.frc.team135.robot.subsystems.EstablishI2CPixyConnection;
+import org.usfirst.frc.team135.robot.subsystems.PixyCam;
 
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.Timer;
-
-import org.usfirst.frc.team135.robot.Robot;
-import org.usfirst.frc.team135.robot.subsystems.PixyCam;
-import org.usfirst.frc.team135.robot.subsystems.EstablishI2CPixyConnection;
 
 /**
  *
  */
-public class GetPixyData extends Command {
+public class DriveStraightWithPixy extends Command {
 	
 	private final int INITIALIZING_PIXY = 0;
 	private final int RECEIVING_GENERAL_DATA = 1;
@@ -20,17 +19,25 @@ public class GetPixyData extends Command {
 	private int numberOfObjectsDetected;
 	
 	private int[][] generalDataBytesRead = new int[PixyCam.MAX_OBJECTS_TO_STORE][PixyCam.NUMBER_OF_GENERAL_DATA_BYTES];
+	
+	private final double DRIVE_TRAIN_MOTOR_POWER = .35;
+	
+	private boolean stopDriving;
+	private final int OBJECT_WIDTH_THRESHOLD = 150;
 
-    public GetPixyData()
+    public DriveStraightWithPixy() 
     {
         // Use requires() here to declare subsystem dependencies
         // eg. requires(chassis);
+    	requires(Robot.driveTrain);
     	requires(Robot.pixyCam);
     }
 
     // Called just before this Command runs the first time
-    protected void initialize()
+    protected void initialize() 
     {
+    	Robot.driveTrain.InitializeCurvatureDrive();
+    	stopDriving = false;
     	phaseNumber = INITIALIZING_PIXY;
     	numberOfObjectsDetected = 0;
     }
@@ -42,12 +49,19 @@ public class GetPixyData extends Command {
     	{
 	    	case INITIALIZING_PIXY:
 	    		phaseNumber = Robot.pixyCam.isReadyToReadDataFromPixy() ? 1 : 0;
+	    		break;
 	    	case RECEIVING_GENERAL_DATA:
 	    		numberOfObjectsDetected = Robot.pixyCam.GetNumberOfObjectsDetected(EstablishI2CPixyConnection.SIGNATURE_1);
 	    		
 	    		if (numberOfObjectsDetected > 0)
 	    		{
 	    			generalDataBytesRead = Robot.pixyCam.GetGeneralPixyData(numberOfObjectsDetected);
+	    			Robot.driveTrain.DriveStraightTowardsBlockWithPixy(DRIVE_TRAIN_MOTOR_POWER,  generalDataBytesRead[0][PixyCam.X_COORDINATE_INDEX]);
+	    			stopDriving = generalDataBytesRead[0][PixyCam.WIDTH_INDEX] >= OBJECT_WIDTH_THRESHOLD ? true : false;
+	    		}
+	    		else 
+	    		{
+	    			Robot.driveTrain.TankDrive(0.0, 0.0);
 	    		}
     	}
     	
@@ -62,15 +76,18 @@ public class GetPixyData extends Command {
     }
 
     // Make this return true when this Command no longer needs to run execute()
-    protected boolean isFinished()
+    protected boolean isFinished() 
     {
-        return false;
+        return stopDriving;
     }
 
     // Called once after isFinished returns true
     protected void end() 
     {
+    	Robot.driveTrain.TankDrive(0.0,  0.0);
+    	stopDriving = false;
     	phaseNumber = INITIALIZING_PIXY;
+    	numberOfObjectsDetected = 0;
     }
 
     // Called when another command which requires one or more of the same

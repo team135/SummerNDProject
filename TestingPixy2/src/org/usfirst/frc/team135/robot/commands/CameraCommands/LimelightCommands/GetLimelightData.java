@@ -1,4 +1,4 @@
-package org.usfirst.frc.team135.robot.commands;
+package org.usfirst.frc.team135.robot.commands.CameraCommands.LimelightCommands;
 
 import org.usfirst.frc.team135.robot.Robot;
 import org.usfirst.frc.team135.robot.subsystems.Limelight;

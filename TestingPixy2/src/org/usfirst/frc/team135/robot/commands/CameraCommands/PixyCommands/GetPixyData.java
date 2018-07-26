@@ -1,18 +1,17 @@
-package org.usfirst.frc.team135.robot.commands;
-
-import org.usfirst.frc.team135.robot.Robot;
-import org.usfirst.frc.team135.robot.subsystems.DriveTrain;
-import org.usfirst.frc.team135.robot.subsystems.EstablishI2CPixyConnection;
-import org.usfirst.frc.team135.robot.subsystems.PixyCam;
+package org.usfirst.frc.team135.robot.commands.CameraCommands.PixyCommands;
 
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.Timer;
+
+import org.usfirst.frc.team135.robot.Robot;
+import org.usfirst.frc.team135.robot.subsystems.PixyCam;
+import org.usfirst.frc.team135.robot.subsystems.EstablishI2CPixyConnection;
 
 /**
  *
  */
-public class TurnTowardsObjectWithPixy extends Command {
+public class GetPixyData extends Command {
 	
 	private final int INITIALIZING_PIXY = 0;
 	private final int RECEIVING_GENERAL_DATA = 1;
@@ -21,28 +20,23 @@ public class TurnTowardsObjectWithPixy extends Command {
 	private int numberOfObjectsDetected;
 	
 	private int[][] generalDataBytesRead = new int[PixyCam.MAX_OBJECTS_TO_STORE][PixyCam.NUMBER_OF_GENERAL_DATA_BYTES];
-	
-	boolean doneTurning;
-	
 
-    public TurnTowardsObjectWithPixy()
+    public GetPixyData()
     {
         // Use requires() here to declare subsystem dependencies
         // eg. requires(chassis);
-    	requires(Robot.driveTrain);
     	requires(Robot.pixyCam);
     }
 
     // Called just before this Command runs the first time
     protected void initialize()
     {
-    	doneTurning = false;
     	phaseNumber = INITIALIZING_PIXY;
     	numberOfObjectsDetected = 0;
     }
 
     // Called repeatedly when this Command is scheduled to run
-    protected void execute()
+    protected void execute() 
     {
     	switch (phaseNumber)
     	{
@@ -54,16 +48,6 @@ public class TurnTowardsObjectWithPixy extends Command {
 	    		if (numberOfObjectsDetected > 0)
 	    		{
 	    			generalDataBytesRead = Robot.pixyCam.GetGeneralPixyData(numberOfObjectsDetected);
-	    			Robot.driveTrain.TurnDriveTrain(.2, DriveTrain.DirectionToTurn.Left);
-	    			
-	    			if (Math.abs(generalDataBytesRead[0][PixyCam.X_COORDINATE_INDEX]) <= 120)
-	    			{
-	    				doneTurning = true;
-	    			}
-	    		}
-	    		else if (numberOfObjectsDetected == 0)
-	    		{
-	    			Robot.driveTrain.TurnDriveTrain(.35, DriveTrain.DirectionToTurn.Left);
 	    		}
     	}
     	
@@ -80,21 +64,18 @@ public class TurnTowardsObjectWithPixy extends Command {
     // Make this return true when this Command no longer needs to run execute()
     protected boolean isFinished()
     {
-        return doneTurning;
+        return false;
     }
 
     // Called once after isFinished returns true
-    protected void end()
+    protected void end() 
     {
-    	Robot.driveTrain.TankDrive(0.0, 0.0);
-    	doneTurning = false;
     	phaseNumber = INITIALIZING_PIXY;
-    	numberOfObjectsDetected = 0;
     }
 
     // Called when another command which requires one or more of the same
     // subsystems is scheduled to run
-    protected void interrupted()
+    protected void interrupted() 
     {
     	this.end();
     }
