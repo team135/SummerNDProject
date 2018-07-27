@@ -1,12 +1,13 @@
 package org.usfirst.frc.team135.robot.subsystems;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTableInstance;
-
-import org.usfirst.frc.team135.robot.commands.CameraCommands.LimelightCommands.GetLimelightData;
-
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
+
+import org.usfirst.frc.team135.robot.commands.CameraCommands.LimelightCommands.GetLimelightData;
 
 /**
  *
@@ -88,6 +89,12 @@ public class Limelight extends Subsystem {
     	limelightData[VERTICAL_OFFSET] = verticalOffsetEntry.getDouble(0.0);
     	limelightData[TARGET_AREA] = targetAreaEntry.getDouble(0.0);
     	limelightData[TARGET_SKEW] = targetSkewEntry.getDouble(0.0);
+    	
+    	SmartDashboard.putNumber("Valid Target", limelightData[VALID_TARGET]);
+    	SmartDashboard.putNumber("Horizontal Offset", limelightData[HORIZONTAL_OFFSET]);
+    	SmartDashboard.putNumber("Vertical Offset", limelightData[VERTICAL_OFFSET]);
+    	SmartDashboard.putNumber("Target Area", limelightData[TARGET_AREA]);
+    	SmartDashboard.putNumber("Target Skew", limelightData[TARGET_SKEW]);
     	
     	return limelightData;
     }

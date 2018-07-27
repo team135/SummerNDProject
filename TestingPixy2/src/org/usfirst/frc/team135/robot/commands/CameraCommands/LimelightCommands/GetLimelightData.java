@@ -33,12 +33,6 @@ public class GetLimelightData extends Command {
     protected void execute()
     {
     	limelightData = Robot.limelight.GetLimelightData();
-    	
-    	SmartDashboard.putNumber("Valid Target", limelightData[Limelight.VALID_TARGET]);
-    	SmartDashboard.putNumber("Horizontal Offset", limelightData[Limelight.HORIZONTAL_OFFSET]);
-    	SmartDashboard.putNumber("Vertical Offset", limelightData[Limelight.VERTICAL_OFFSET]);
-    	SmartDashboard.putNumber("Target Area", limelightData[Limelight.TARGET_AREA]);
-    	SmartDashboard.putNumber("Target Skew", limelightData[Limelight.TARGET_SKEW]);
     }
 
     // Make this return true when this Command no longer needs to run execute()

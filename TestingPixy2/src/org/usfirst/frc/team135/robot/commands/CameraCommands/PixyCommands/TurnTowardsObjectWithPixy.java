@@ -68,15 +68,6 @@ public class TurnTowardsObjectWithPixy extends Command {
 	    			Robot.driveTrain.TurnDriveTrain(TURNING_MOTOR_POWER, DriveTrain.DirectionToTurn.Left);
 	    		}
     	}
-    	
-		SmartDashboard.putNumber("Number of Objects Detected", numberOfObjectsDetected);
-		SmartDashboard.putNumber("Object 1 Signature", generalDataBytesRead[0][PixyCam.SIGNATURE_INDEX]);
-		SmartDashboard.putNumber("Object 1 X-Coordinate", generalDataBytesRead[0][PixyCam.X_COORDINATE_INDEX]);
-		SmartDashboard.putNumber("Object 1 Y-Coordinate", generalDataBytesRead[0][PixyCam.Y_COORDINATE_INDEX]);
-		SmartDashboard.putNumber("Object 1 Width", generalDataBytesRead[0][PixyCam.WIDTH_INDEX]);
-		SmartDashboard.putNumber("Object 1 Height", generalDataBytesRead[0][PixyCam.HEIGHT_INDEX]);
-		SmartDashboard.putNumber("Object 1 Index", generalDataBytesRead[0][PixyCam.INDEX_INDEX]);
-		SmartDashboard.putNumber("Object 1 Age", generalDataBytesRead[0][PixyCam.AGE_INDEX]);
     }
 
     // Make this return true when this Command no longer needs to run execute()

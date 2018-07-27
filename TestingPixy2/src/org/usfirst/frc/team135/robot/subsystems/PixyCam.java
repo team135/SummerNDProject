@@ -1,15 +1,14 @@
 package org.usfirst.frc.team135.robot.subsystems;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.PIDSource;
-import edu.wpi.first.wpilibj.PIDSourceType;
 
 import org.usfirst.frc.team135.robot.commands.CameraCommands.PixyCommands.GetPixyData;
-import org.usfirst.frc.team135.robot.subsystems.EstablishI2CPixyConnection;;
+import org.usfirst.frc.team135.robot.subsystems.EstablishI2CPixyConnection;
 
-public class PixyCam extends Subsystem implements PIDSource {
+public class PixyCam extends Subsystem {
 	
 //  I2C Device Address of the Pixy2
 private final int PIXY_CAM_DEVICE_ADDRESS = 0x54;
@@ -18,10 +17,10 @@ private final int PIXY_CAM_DEVICE_ADDRESS = 0x54;
 //  Using I2C Port On Board, NOT through MXP
 private I2C pixy2 = new I2C(I2C.Port.kOnboard, PIXY_CAM_DEVICE_ADDRESS);
 
-private EstablishI2CPixyConnection initializingPixy2 = new EstablishI2CPixyConnection();
+private EstablishI2CPixyConnection initializingPixy2 = new EstablishI2CPixyConnection(pixy2);
 
 //  InitializeSubsystem()
-private static PixyCam instance;  //  OK
+private static PixyCam instance;
 
 //  ReadPixyResolution()
 private final int RESOLUTION_WIDTH = 0;
@@ -65,7 +64,7 @@ public static final int AGE_INDEX = 6;
         // Set the default command for a subsystem here.
         //setDefaultCommand(new MySpecialCommand());
     	
-    	//  setDefaultCommand(new GetPixyData());
+    	setDefaultCommand(new GetPixyData());
     }
     
     //  Used to create and instance of the PixyCam Subsystem in Robot.java
@@ -89,10 +88,8 @@ public static final int AGE_INDEX = 6;
     	resolution[RESOLUTION_WIDTH] = (initializingPixy2.ModifyDataByte(bytesRead[1]) << 8) + initializingPixy2.ModifyDataByte(bytesRead[0]);
     	resolution[RESOLUTION_HEIGHT] = (initializingPixy2.ModifyDataByte(bytesRead[3]) << 8) + initializingPixy2.ModifyDataByte(bytesRead[2]);
     	
-    	System.out.print("Pixy Resolution Width: ");
-    	System.out.println(resolution[0]);
-    	System.out.print("Pixy Resolution Height: ");
-    	System.out.println(resolution[1]);
+    	SmartDashboard.putNumber("Pixy Resolution Width", resolution[RESOLUTION_WIDTH]);
+    	SmartDashboard.putNumber("Pixy Resolutiuon Height", resolution[RESOLUTION_HEIGHT]);
     	
     	return;
     }
@@ -133,7 +130,7 @@ public static final int AGE_INDEX = 6;
 			case INITIALIZING_PIXY:
 				readyToReadData = false;
 				
-				if (initializingPixy2.InitializePixy(pixy2))
+				if (initializingPixy2.InitializePixy())
 				{
 					System.out.println("Pixy Initialized");
 					phaseNumber++;
@@ -182,6 +179,8 @@ public static final int AGE_INDEX = 6;
     		numberOfObjectsDetected = -1;
     	}
     	
+    	SmartDashboard.putNumber("Number of Objects Detected by Pixy", numberOfObjectsDetected);
+    	
     	return numberOfObjectsDetected;
     }
     
@@ -223,31 +222,16 @@ public static final int AGE_INDEX = 6;
     		}
     	}
     	
+		SmartDashboard.putNumber("Pixy Object 0 Signature", objectGeneralData[0][SIGNATURE_INDEX]);
+		SmartDashboard.putNumber("Pixy Object 0 X-Coordinate", objectGeneralData[0][X_COORDINATE_INDEX]);
+		SmartDashboard.putNumber("Pixy Object 0 Y-Coordinate", objectGeneralData[0][Y_COORDINATE_INDEX]);
+		SmartDashboard.putNumber("Pixy Object 0 Width", objectGeneralData[0][WIDTH_INDEX]);
+		SmartDashboard.putNumber("Pixy Object 0 Height", objectGeneralData[0][HEIGHT_INDEX]);
+		SmartDashboard.putNumber("Pixy Object 0 Index", objectGeneralData[0][INDEX_INDEX]);
+		SmartDashboard.putNumber("Pixy Object 0 Age", objectGeneralData[0][AGE_INDEX]);
+    	
     	return objectGeneralData;
     }
-
-    //  PIDSourceType is an enum
-    //  Has two choices: kDisplacement and kRate
-    //  Since we are doing Position PID, we want kDisplacement
-    PIDSourceType pidSourceType;
-    
-	@Override
-	public void setPIDSourceType(PIDSourceType pidSource) {
-		// TODO Auto-generated method stub
-		pidSourceType = pidSource;
-	}
-
-	@Override
-	public PIDSourceType getPIDSourceType() {
-		// TODO Auto-generated method stub
-		return pidSourceType;
-	}
-
-	@Override
-	public double pidGet() {
-		// TODO Auto-generated method stub
-		return objectGeneralData[0][X_COORDINATE_INDEX];
-	}
     
 }
 
