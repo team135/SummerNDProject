@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
 
+import org.usfirst.frc.team135.robot.RobotMap;
 import org.usfirst.frc.team135.robot.commands.CameraCommands.PixyCommands.GetPixyData;
 import org.usfirst.frc.team135.robot.subsystems.EstablishI2CPixyConnection;
 
@@ -64,7 +65,10 @@ public static final int AGE_INDEX = 6;
         // Set the default command for a subsystem here.
         //setDefaultCommand(new MySpecialCommand());
     	
-    	setDefaultCommand(new GetPixyData());
+    	if (RobotMap.cameraToUse == RobotMap.DesignatedCamera.PixyCamera)
+    	{
+    		setDefaultCommand(new GetPixyData());
+    	}
     }
     
     //  Used to create and instance of the PixyCam Subsystem in Robot.java
@@ -88,8 +92,8 @@ public static final int AGE_INDEX = 6;
     	resolution[RESOLUTION_WIDTH] = (initializingPixy2.ModifyDataByte(bytesRead[1]) << 8) + initializingPixy2.ModifyDataByte(bytesRead[0]);
     	resolution[RESOLUTION_HEIGHT] = (initializingPixy2.ModifyDataByte(bytesRead[3]) << 8) + initializingPixy2.ModifyDataByte(bytesRead[2]);
     	
-    	SmartDashboard.putNumber("Pixy Resolution Width", resolution[RESOLUTION_WIDTH]);
-    	SmartDashboard.putNumber("Pixy Resolutiuon Height", resolution[RESOLUTION_HEIGHT]);
+    	//  SmartDashboard.putNumber("Pixy Resolution Width", resolution[RESOLUTION_WIDTH]);
+    	//  SmartDashboard.putNumber("Pixy Resolutiuon Height", resolution[RESOLUTION_HEIGHT]);
     	
     	return;
     }
@@ -132,12 +136,10 @@ public static final int AGE_INDEX = 6;
 				
 				if (initializingPixy2.InitializePixy())
 				{
-					System.out.println("Pixy Initialized");
 					phaseNumber++;
 				}
 				else
 				{
-					System.out.println("Pixy Initializing...");
 					break;
 				}
 			case GETTING_PIXY_RESOLUTION:
@@ -149,10 +151,6 @@ public static final int AGE_INDEX = 6;
 	    			this.GetNumberOfBytesToRead();
 	    			this.ReadPixyResolution();
 	    			readyToReadData = true;
-	    		}
-	    		else
-	    		{
-	    			System.out.println("Receiving Pixy Resolution...");
 	    		}
 		}
 		
@@ -222,13 +220,13 @@ public static final int AGE_INDEX = 6;
     		}
     	}
     	
-		SmartDashboard.putNumber("Pixy Object 0 Signature", objectGeneralData[0][SIGNATURE_INDEX]);
+		//  SmartDashboard.putNumber("Pixy Object 0 Signature", objectGeneralData[0][SIGNATURE_INDEX]);
 		SmartDashboard.putNumber("Pixy Object 0 X-Coordinate", objectGeneralData[0][X_COORDINATE_INDEX]);
 		SmartDashboard.putNumber("Pixy Object 0 Y-Coordinate", objectGeneralData[0][Y_COORDINATE_INDEX]);
 		SmartDashboard.putNumber("Pixy Object 0 Width", objectGeneralData[0][WIDTH_INDEX]);
-		SmartDashboard.putNumber("Pixy Object 0 Height", objectGeneralData[0][HEIGHT_INDEX]);
-		SmartDashboard.putNumber("Pixy Object 0 Index", objectGeneralData[0][INDEX_INDEX]);
-		SmartDashboard.putNumber("Pixy Object 0 Age", objectGeneralData[0][AGE_INDEX]);
+		//  SmartDashboard.putNumber("Pixy Object 0 Height", objectGeneralData[0][HEIGHT_INDEX]);
+		//  SmartDashboard.putNumber("Pixy Object 0 Index", objectGeneralData[0][INDEX_INDEX]);
+		//  SmartDashboard.putNumber("Pixy Object 0 Age", objectGeneralData[0][AGE_INDEX]);
     	
     	return objectGeneralData;
     }

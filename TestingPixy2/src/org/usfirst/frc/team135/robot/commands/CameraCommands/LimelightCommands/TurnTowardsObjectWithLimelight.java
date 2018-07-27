@@ -65,7 +65,8 @@ public class TurnTowardsObjectWithLimelight extends Command {
     protected boolean isFinished()
     {
         return (limelightData[Limelight.HORIZONTAL_OFFSET] <= X_THRESHOLD_TO_STOP_TURNING 
-        		&& limelightData[Limelight.HORIZONTAL_OFFSET] >= -X_THRESHOLD_TO_STOP_TURNING);
+        		&& limelightData[Limelight.HORIZONTAL_OFFSET] >= -X_THRESHOLD_TO_STOP_TURNING
+        		&& limelightData[Limelight.HORIZONTAL_OFFSET] != 0);
     }
 
     // Called once after isFinished returns true

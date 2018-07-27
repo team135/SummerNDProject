@@ -34,9 +34,6 @@ public class DriveWithJoysticks extends Command {
     	leftJoystickValue = Robot.oi.GetJoystickYValue(OI.LEFT_JOYSTICK);
     	rightJoystickValue = Robot.oi.GetJoystickYValue(OI.RIGHT_JOYSTICK);
     	
-    	SmartDashboard.putNumber("Right Joystick Value", rightJoystickValue);
-    	SmartDashboard.putNumber("Left Joystick Value", leftJoystickValue);
-    	
     	Robot.driveTrain.TankDrive(leftJoystickValue,  rightJoystickValue);
     }
 

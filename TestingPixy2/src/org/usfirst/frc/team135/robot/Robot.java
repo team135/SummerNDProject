@@ -7,13 +7,14 @@
 
 package org.usfirst.frc.team135.robot;
 
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.TimedRobot;
 
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 //  import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import org.usfirst.frc.team135.robot.subsystems.PixyCam;
 import org.usfirst.frc.team135.robot.subsystems.DriveTrain;
@@ -34,6 +35,8 @@ public class Robot extends TimedRobot {
 	public static PixyCam pixyCam;
 	public static DriveTrain driveTrain;
 	public static Limelight limelight;
+	
+	boolean chooseLimelightCamera;
 
 	Command m_autonomousCommand;
 	SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -49,6 +52,18 @@ public class Robot extends TimedRobot {
 		driveTrain = DriveTrain.InitializeDriveTrain();
 		limelight = Limelight.InitializeSubystem();
 		
+		
+		chooseLimelightCamera = Preferences.getInstance().getBoolean("Limelight?", true);
+		RobotMap.cameraToUse  = chooseLimelightCamera ? RobotMap.DesignatedCamera.Limelight : RobotMap.DesignatedCamera.PixyCamera;
+		
+		if (RobotMap.cameraToUse == RobotMap.DesignatedCamera.Limelight)
+		{
+			SmartDashboard.putString("Camera Using", "Limelight");
+		}
+		else if (RobotMap.cameraToUse == RobotMap.DesignatedCamera.PixyCamera)
+		{
+			SmartDashboard.putString("Camera Using", "Pixy2");
+		}
 		
 		OI.InitializeButtonsWithCommands();
 		

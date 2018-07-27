@@ -9,7 +9,7 @@ package org.usfirst.frc.team135.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
-import org.usfirst.frc.team135.robot.commands.DriveTowardsObjectWithPixy;
+import org.usfirst.frc.team135.robot.commands.CameraCommands.DriveAndTrackBlockWithVision;
 
 /**
  * This class is the glue that binds the controls on the physical operator
@@ -102,7 +102,7 @@ public class OI {
 	
 	public static void InitializeButtonsWithCommands()
 	{
-		rightTrigger.toggleWhenPressed(new DriveTowardsObjectWithPixy());
+		rightTrigger.toggleWhenPressed(new DriveAndTrackBlockWithVision());
 		return;
 	}
 }

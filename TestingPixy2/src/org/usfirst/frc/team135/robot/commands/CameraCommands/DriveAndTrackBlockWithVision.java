@@ -2,6 +2,7 @@ package org.usfirst.frc.team135.robot.commands.CameraCommands;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
 
+import org.usfirst.frc.team135.robot.Robot;
 import org.usfirst.frc.team135.robot.RobotMap;
 import org.usfirst.frc.team135.robot.commands.CameraCommands.PixyCommands.DriveStraightWithPixy;
 import org.usfirst.frc.team135.robot.commands.CameraCommands.PixyCommands.TurnTowardsObjectWithPixy;
@@ -31,12 +32,16 @@ public class DriveAndTrackBlockWithVision extends CommandGroup {
         // a CommandGroup containing them would require both the chassis and the
         // arm.
     	
-    	if (RobotMap.CAMERA_TO_USE == RobotMap.DesignatedCamera.PixyCamera)
+    	requires(Robot.driveTrain);
+    	requires(Robot.pixyCam);
+    	requires(Robot.limelight);
+    	
+    	if (RobotMap.cameraToUse == RobotMap.DesignatedCamera.PixyCamera)
     	{
         	addSequential(new TurnTowardsObjectWithPixy());
         	addSequential(new DriveStraightWithPixy());
     	}
-    	else if (RobotMap.CAMERA_TO_USE == RobotMap.DesignatedCamera.Limelight)
+    	else if (RobotMap.cameraToUse == RobotMap.DesignatedCamera.Limelight)
     	{
         	addSequential(new TurnTowardsObjectWithLimelight());
         	addSequential(new DriveStraightWithLimelight());

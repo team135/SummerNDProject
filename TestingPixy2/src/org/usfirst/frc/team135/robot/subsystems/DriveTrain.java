@@ -109,7 +109,7 @@ public class DriveTrain extends Subsystem implements PIDOutput{
     	return;
     }
     
-    public void DriveStraightTowardsBlockWithPixy(double motorPower, double xValue, double pValue)
+    public void DriveStraightTowardsBlockWithVision(double motorPower, double xValue, double pValue)
     {
     	zRotationPower = xValue * pValue;
     	chassis.curvatureDrive(motorPower, zRotationPower, QUICK_STOP_DISABLED);

@@ -34,7 +34,7 @@ public class RobotMap {
 		PixyCamera, Limelight
 	}
 	
-	public static final DesignatedCamera CAMERA_TO_USE = DesignatedCamera.Limelight;
+	public static DesignatedCamera cameraToUse;
 	
 
 	

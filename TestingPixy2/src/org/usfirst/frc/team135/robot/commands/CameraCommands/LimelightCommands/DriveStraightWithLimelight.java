@@ -14,8 +14,8 @@ public class DriveStraightWithLimelight extends Command {
 	private double[] limelightData = new double[Limelight.NUMBER_OF_LIMELIGHT_CHARACTERISTICS];
 	
 	private final double DRIVE_TRAIN_MOTOR_POWER = .35;
-	private final double LIMELIGHT_DRIVE_STRAIGHT_P_VALUE = .06;
-	private final double TARGET_AREA_THRESHOLD = .5;
+	private final double LIMELIGHT_DRIVE_STRAIGHT_P_VALUE = .045;
+	private final double TARGET_AREA_THRESHOLD = 60;
 	
     public DriveStraightWithLimelight()
     {
@@ -42,7 +42,7 @@ public class DriveStraightWithLimelight extends Command {
     protected void execute()
     {
     	limelightData = Robot.limelight.GetLimelightData();
-    	Robot.driveTrain.DriveStraightTowardsBlockWithPixy(DRIVE_TRAIN_MOTOR_POWER, limelightData[Limelight.HORIZONTAL_OFFSET], LIMELIGHT_DRIVE_STRAIGHT_P_VALUE);
+    	Robot.driveTrain.DriveStraightTowardsBlockWithVision(DRIVE_TRAIN_MOTOR_POWER, limelightData[Limelight.HORIZONTAL_OFFSET], LIMELIGHT_DRIVE_STRAIGHT_P_VALUE);
     }
 
     // Make this return true when this Command no longer needs to run execute()
@@ -54,6 +54,7 @@ public class DriveStraightWithLimelight extends Command {
     // Called once after isFinished returns true
     protected void end()
     {
+    	System.out.println("Finished");
     	Robot.driveTrain.TankDrive(0.0, 0.0);
     }
 

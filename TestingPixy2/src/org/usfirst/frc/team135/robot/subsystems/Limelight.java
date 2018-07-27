@@ -7,6 +7,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 
+import org.usfirst.frc.team135.robot.RobotMap;
 import org.usfirst.frc.team135.robot.commands.CameraCommands.LimelightCommands.GetLimelightData;
 
 /**
@@ -67,8 +68,10 @@ public class Limelight extends Subsystem {
     public void initDefaultCommand() {
         // Set the default command for a subsystem here.
         //setDefaultCommand(new MySpecialCommand());
-    	
-    	setDefaultCommand(new GetLimelightData());
+    	if (RobotMap.cameraToUse == RobotMap.DesignatedCamera.Limelight)
+    	{
+    		setDefaultCommand(new GetLimelightData());
+    	}
     }
     
     //  Method used in Robot.java to Initialize the Subsystem to be used in the Commands
@@ -94,7 +97,7 @@ public class Limelight extends Subsystem {
     	SmartDashboard.putNumber("Horizontal Offset", limelightData[HORIZONTAL_OFFSET]);
     	SmartDashboard.putNumber("Vertical Offset", limelightData[VERTICAL_OFFSET]);
     	SmartDashboard.putNumber("Target Area", limelightData[TARGET_AREA]);
-    	SmartDashboard.putNumber("Target Skew", limelightData[TARGET_SKEW]);
+    	//  SmartDashboard.putNumber("Target Skew", limelightData[TARGET_SKEW]);
     	
     	return limelightData;
     }
