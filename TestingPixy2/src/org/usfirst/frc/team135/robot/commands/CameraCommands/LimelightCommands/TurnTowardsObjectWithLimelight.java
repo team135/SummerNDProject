@@ -22,7 +22,7 @@ public class TurnTowardsObjectWithLimelight extends Command {
         // Use requires() here to declare subsystem dependencies
         // eg. requires(chassis);
     	requires(Robot.limelight);
-    	requires(Robot.driveTrain);
+    	requires(Robot.drivetrain);
     }
 
     // Called just before this Command runs the first time
@@ -44,19 +44,19 @@ public class TurnTowardsObjectWithLimelight extends Command {
     	
     	if (targetExists == false)  //  If no target is detected, Turn Left
     	{
-    		Robot.driveTrain.TurnDriveTrain(TURNING_MOTOR_POWER, DriveTrain.DirectionToTurn.Left);
+    		Robot.drivetrain.TurnDriveTrain(TURNING_MOTOR_POWER, DriveTrain.DirectionToTurn.Left);
     	}
     	else if (targetExists && limelightData[Limelight.HORIZONTAL_OFFSET] > 0.0)  // If Target is to the Right, turn to the Right
     	{
-    		Robot.driveTrain.TurnDriveTrain(TURNING_MOTOR_POWER, DriveTrain.DirectionToTurn.Right);
+    		Robot.drivetrain.TurnDriveTrain(TURNING_MOTOR_POWER, DriveTrain.DirectionToTurn.Right);
     	}
     	else if (targetExists && limelightData[Limelight.HORIZONTAL_OFFSET] < 0.0)  //  If Target is to the Left, turn to the Left
     	{
-    		Robot.driveTrain.TurnDriveTrain(TURNING_MOTOR_POWER, DriveTrain.DirectionToTurn.Left);
+    		Robot.drivetrain.TurnDriveTrain(TURNING_MOTOR_POWER, DriveTrain.DirectionToTurn.Left);
     	}
     	else  //  If the Horizontal Offset is equal to 0.0, Don't Turn
     	{
-    		Robot.driveTrain.TankDrive(0.0, 0.0);
+    		Robot.drivetrain.TankDrive(0.0, 0.0);
     	}
     	
     }
@@ -72,7 +72,7 @@ public class TurnTowardsObjectWithLimelight extends Command {
     // Called once after isFinished returns true
     protected void end()
     {
-    	Robot.driveTrain.TankDrive(0.0, 0.0);
+    	Robot.drivetrain.TankDrive(0.0, 0.0);
     	targetExists = false;
     }
 

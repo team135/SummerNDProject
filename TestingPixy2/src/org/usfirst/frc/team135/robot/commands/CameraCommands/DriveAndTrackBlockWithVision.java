@@ -32,7 +32,7 @@ public class DriveAndTrackBlockWithVision extends CommandGroup {
         // a CommandGroup containing them would require both the chassis and the
         // arm.
     	
-    	requires(Robot.driveTrain);
+    	requires(Robot.drivetrain);
     	requires(Robot.pixyCam);
     	requires(Robot.limelight);
     	

@@ -30,14 +30,14 @@ public class DriveStraightWithPixy extends Command {
     {
         // Use requires() here to declare subsystem dependencies
         // eg. requires(chassis);
-    	requires(Robot.driveTrain);
+    	requires(Robot.drivetrain);
     	requires(Robot.pixyCam);
     }
 
     // Called just before this Command runs the first time
     protected void initialize() 
     {
-    	Robot.driveTrain.InitializeCurvatureDrive();
+    	Robot.drivetrain.InitializeCurvatureDrive();
     	stopDriving = false;
     	phaseNumber = INITIALIZING_PIXY;
     	numberOfObjectsDetected = 0;
@@ -57,12 +57,12 @@ public class DriveStraightWithPixy extends Command {
 	    		if (numberOfObjectsDetected > 0)
 	    		{
 	    			generalDataBytesRead = Robot.pixyCam.GetGeneralPixyData(numberOfObjectsDetected);
-	    			Robot.driveTrain.DriveStraightTowardsBlockWithVision(DRIVE_TRAIN_MOTOR_POWER, (double)generalDataBytesRead[0][PixyCam.X_COORDINATE_INDEX], PIXY_DRIVE_STRAIGHT_P_VALUE);
+	    			Robot.drivetrain.DriveStraightTowardsBlockWithVision(DRIVE_TRAIN_MOTOR_POWER, (double)generalDataBytesRead[0][PixyCam.X_COORDINATE_INDEX], PIXY_DRIVE_STRAIGHT_P_VALUE);
 	    			stopDriving = generalDataBytesRead[0][PixyCam.WIDTH_INDEX] >= OBJECT_WIDTH_THRESHOLD ? true : false;
 	    		}
 	    		else 
 	    		{
-	    			Robot.driveTrain.TankDrive(0.0, 0.0);
+	    			Robot.drivetrain.TankDrive(0.0, 0.0);
 	    		}
     	}
     }
@@ -76,7 +76,7 @@ public class DriveStraightWithPixy extends Command {
     // Called once after isFinished returns true
     protected void end() 
     {
-    	Robot.driveTrain.TankDrive(0.0,  0.0);
+    	Robot.drivetrain.TankDrive(0.0,  0.0);
     	stopDriving = false;
     	phaseNumber = INITIALIZING_PIXY;
     	numberOfObjectsDetected = 0;

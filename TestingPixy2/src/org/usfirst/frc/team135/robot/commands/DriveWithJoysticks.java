@@ -19,7 +19,7 @@ public class DriveWithJoysticks extends Command {
     {
         // Use requires() here to declare subsystem dependencies
         // eg. requires(chassis);
-    	requires(Robot.driveTrain);
+    	requires(Robot.drivetrain);
     }
 
     // Called just before this Command runs the first time
@@ -34,7 +34,7 @@ public class DriveWithJoysticks extends Command {
     	leftJoystickValue = Robot.oi.GetJoystickYValue(OI.LEFT_JOYSTICK);
     	rightJoystickValue = Robot.oi.GetJoystickYValue(OI.RIGHT_JOYSTICK);
     	
-    	Robot.driveTrain.TankDrive(leftJoystickValue,  rightJoystickValue);
+    	Robot.drivetrain.TankDrive(leftJoystickValue,  rightJoystickValue);
     }
 
     // Make this return true when this Command no longer needs to run execute()
@@ -46,7 +46,7 @@ public class DriveWithJoysticks extends Command {
     // Called once after isFinished returns true
     protected void end() 
     {
-    	Robot.driveTrain.TankDrive(0.0,  0.0);
+    	Robot.drivetrain.TankDrive(0.0,  0.0);
     }
 
     // Called when another command which requires one or more of the same

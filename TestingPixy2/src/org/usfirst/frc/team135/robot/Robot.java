@@ -7,6 +7,7 @@
 
 package org.usfirst.frc.team135.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.TimedRobot;
 
@@ -17,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import org.usfirst.frc.team135.robot.subsystems.PixyCam;
+import org.usfirst.frc.team135.robot.commands.auto.entrypoints.LeftPosition;
 import org.usfirst.frc.team135.robot.subsystems.DriveTrain;
 import org.usfirst.frc.team135.robot.subsystems.Limelight;
 
@@ -33,13 +35,14 @@ public class Robot extends TimedRobot {
 	//  Declaring Instances of the Subsystems
 	public static OI oi;
 	public static PixyCam pixyCam;
-	public static DriveTrain driveTrain;
+	public static DriveTrain drivetrain;
 	public static Limelight limelight;
 	
 	boolean chooseLimelightCamera;
+	public Command autonomousCommand;
 
-	Command m_autonomousCommand;
-	SendableChooser<Command> m_chooser = new SendableChooser<>();
+	public static String gameMessage;
+	SendableChooser<String> chooser = new SendableChooser<>();
 
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -49,7 +52,7 @@ public class Robot extends TimedRobot {
 	public void robotInit() {
 		oi = OI.InitializeOperatorInterface();
 		pixyCam = PixyCam.InitializeSubsystem();
-		driveTrain = DriveTrain.InitializeDriveTrain();
+		drivetrain = DriveTrain.InitializeDriveTrain();
 		limelight = Limelight.InitializeSubystem();
 		
 		
@@ -100,19 +103,13 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void autonomousInit() {
-		//  m_autonomousCommand = m_chooser.getSelected();
-
-		/*
-		 * String autoSelected = SmartDashboard.getString("Auto Selector",
-		 * "Default"); switch(autoSelected) { case "My Auto": autonomousCommand
-		 * = new MyAutoCommand(); break; case "Default Auto": default:
-		 * autonomousCommand = new ExampleCommand(); break; }
-		 */
-
-		// schedule the autonomous command (example)
-		/* if (m_autonomousCommand != null) {
-			m_autonomousCommand.start();
-		} */
+		
+		gameMessage = DriverStation.getInstance().getGameSpecificMessage();
+		
+		String position = chooser.getSelected();
+		
+		System.out.println("Left Position");
+		autonomousCommand = new LeftPosition();
 	}
 
 	/**
@@ -129,8 +126,8 @@ public class Robot extends TimedRobot {
 		// teleop starts running. If you want the autonomous to
 		// continue until interrupted by another command, remove
 		// this line or comment it out.
-		if (m_autonomousCommand != null) {
-			m_autonomousCommand.cancel();
+		if (autonomousCommand != null) {
+			autonomousCommand.cancel();
 		}
 	}
 

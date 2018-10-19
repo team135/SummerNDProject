@@ -22,7 +22,7 @@ public class DriveTrain extends Subsystem implements PIDOutput{
 	WPI_TalonSRX rearLeftMotor = new WPI_TalonSRX(RobotMap.DRIVE_TRAIN_REAR_LEFT_TALON_ID);
 	SpeedControllerGroup leftSide = new SpeedControllerGroup(frontLeftMotor, rearLeftMotor);
 	
-	WPI_TalonSRX frontRightMotor = new WPI_TalonSRX(RobotMap.DRIVE_TRAIN_FRONT_RIGHT_TALON_ID);
+	public static WPI_TalonSRX frontRightMotor = new WPI_TalonSRX(RobotMap.DRIVE_TRAIN_FRONT_RIGHT_TALON_ID);
 	WPI_TalonSRX rearRightMotor = new WPI_TalonSRX(RobotMap.DRIVE_TRAIN_REAR_RIGHT_TALON_ID);
 	SpeedControllerGroup rightSide = new SpeedControllerGroup(frontRightMotor, rearRightMotor);
 	

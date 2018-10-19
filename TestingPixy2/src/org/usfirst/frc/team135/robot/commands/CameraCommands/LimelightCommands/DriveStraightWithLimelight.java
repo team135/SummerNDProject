@@ -22,7 +22,7 @@ public class DriveStraightWithLimelight extends Command {
         // Use requires() here to declare subsystem dependencies
         // eg. requires(chassis);
     	requires(Robot.limelight);
-    	requires(Robot.driveTrain);
+    	requires(Robot.drivetrain);
     	
     }
 
@@ -30,7 +30,7 @@ public class DriveStraightWithLimelight extends Command {
     protected void initialize()
     {
     	//  Initializing Drive Train
-    	Robot.driveTrain.InitializeCurvatureDrive();
+    	Robot.drivetrain.InitializeCurvatureDrive();
     	
     	//  Initializing Limelight
     	Robot.limelight.SetCameraPipeline(Limelight.YELLOW_BLOCK_PIPELINE);
@@ -42,7 +42,7 @@ public class DriveStraightWithLimelight extends Command {
     protected void execute()
     {
     	limelightData = Robot.limelight.GetLimelightData();
-    	Robot.driveTrain.DriveStraightTowardsBlockWithVision(DRIVE_TRAIN_MOTOR_POWER, limelightData[Limelight.HORIZONTAL_OFFSET], LIMELIGHT_DRIVE_STRAIGHT_P_VALUE);
+    	Robot.drivetrain.DriveStraightTowardsBlockWithVision(DRIVE_TRAIN_MOTOR_POWER, limelightData[Limelight.HORIZONTAL_OFFSET], LIMELIGHT_DRIVE_STRAIGHT_P_VALUE);
     }
 
     // Make this return true when this Command no longer needs to run execute()
@@ -55,7 +55,7 @@ public class DriveStraightWithLimelight extends Command {
     protected void end()
     {
     	System.out.println("Finished");
-    	Robot.driveTrain.TankDrive(0.0, 0.0);
+    	Robot.drivetrain.TankDrive(0.0, 0.0);
     }
 
     // Called when another command which requires one or more of the same

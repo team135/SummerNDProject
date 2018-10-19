@@ -31,7 +31,7 @@ public class TurnTowardsObjectWithPixy extends Command {
     {
         // Use requires() here to declare subsystem dependencies
         // eg. requires(chassis);
-    	requires(Robot.driveTrain);
+    	requires(Robot.drivetrain);
     	requires(Robot.pixyCam);
     }
 
@@ -56,7 +56,7 @@ public class TurnTowardsObjectWithPixy extends Command {
 	    		if (numberOfObjectsDetected > 0)
 	    		{
 	    			generalDataBytesRead = Robot.pixyCam.GetGeneralPixyData(numberOfObjectsDetected);
-	    			Robot.driveTrain.TurnDriveTrain(.2, DriveTrain.DirectionToTurn.Left);
+	    			Robot.drivetrain.TurnDriveTrain(.2, DriveTrain.DirectionToTurn.Left);
 	    			
 	    			if (Math.abs(generalDataBytesRead[0][PixyCam.X_COORDINATE_INDEX]) <= 120)
 	    			{
@@ -65,7 +65,7 @@ public class TurnTowardsObjectWithPixy extends Command {
 	    		}
 	    		else if (numberOfObjectsDetected == 0)
 	    		{
-	    			Robot.driveTrain.TurnDriveTrain(TURNING_MOTOR_POWER, DriveTrain.DirectionToTurn.Left);
+	    			Robot.drivetrain.TurnDriveTrain(TURNING_MOTOR_POWER, DriveTrain.DirectionToTurn.Left);
 	    		}
     	}
     }
@@ -79,7 +79,7 @@ public class TurnTowardsObjectWithPixy extends Command {
     // Called once after isFinished returns true
     protected void end()
     {
-    	Robot.driveTrain.TankDrive(0.0, 0.0);
+    	Robot.drivetrain.TankDrive(0.0, 0.0);
     	doneTurning = false;
     	phaseNumber = INITIALIZING_PIXY;
     	numberOfObjectsDetected = 0;
