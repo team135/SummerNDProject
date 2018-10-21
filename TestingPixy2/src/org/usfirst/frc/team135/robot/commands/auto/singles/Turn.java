@@ -10,48 +10,58 @@ import edu.wpi.first.wpilibj.command.InstantCommand;
 import edu.wpi.first.wpilibj.command.TimedCommand;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class Turn extends InstantCommand 
+public class Turn extends InstantCommand
 {
-	  PIDController turnController;
-	  double angletoturn;
-	  double absoluteangle;
-	  
+	PIDController turnController;
+	double angletoturn;
+	double absoluteangle;
+	double 
+	distancetravelled,
+	distancetotravel,
+	currentvoltage,
+	estimatedvelocity,
+	error,
+	time;
+	int isleftturn;
     public Turn(double angle) {
+    	requires(Robot.drivetrain);
     	absoluteangle =  (angle < 0 ? 180 + angle: angle); 
     	angletoturn = angle;
-    	requires(Robot.drivetrain);
+    	distancetravelled = 0;
+    	distancetotravel = 0;
+		currentvoltage = 0;
+		estimatedvelocity = 0;
+		error = 0;
+		time = 0;
+		isleftturn = 1;
     }
     
-    protected void initialize() {
+    protected void execute()
+    {
+    	distancetotravel = 21.63 * Math.toRadians(Math.abs(angletoturn));
+    	System.out.println("Distancetotravel: " + distancetotravel + "\n");
+    	isleftturn = (absoluteangle != angletoturn ? 1 : -1);
     	Timer finaltimer = new Timer();
     	finaltimer.start();
-    	double distancetotravel = Math.sqrt(2 * 21.63 * 21.63 * (1 - Math.cos(Math.toRadians(absoluteangle))));
-    	System.out.println("Distancetotravel: " + distancetotravel + "\n");
-    	double distancetravelled = 0;
     	Timer timer = new Timer();
 		timer.start();
-		Robot.drivetrain.TankDrive(1.0 * (absoluteangle != angletoturn ? 1 : -1), 1.0 * (absoluteangle != angletoturn ? -1 : 1));
-		double time = timer.get();
-		while (finaltimer.get() < 2)
+		Robot.drivetrain.TankDrive(1.0 * isleftturn, -1.0 * isleftturn);
+		time = timer.get();
+		while (distancetravelled < (distancetotravel) && finaltimer.get() < 2)
 		{
-			while (distancetravelled < (distancetotravel) && timer.get() - time > AUTONOMOUS.TIME_PERIOD)
+			while ( timer.get() - time > AUTONOMOUS.TIME_PERIOD)
 			{
-				double currentvoltage = DriveTrain.frontRightMotor.getMotorOutputVoltage();
-				double estimatedvelocity = (currentvoltage - 1.25) * 1.25;
+				currentvoltage = DriveTrain.frontRightMotor.getMotorOutputVoltage();
+				estimatedvelocity = (currentvoltage + (currentvoltage < 0 ? 1.25 : -1.25)) * 1.25;
 				distancetravelled += estimatedvelocity * AUTONOMOUS.TIME_PERIOD;
-				double error = (distancetotravel - distancetravelled) / distancetotravel;
-				Robot.drivetrain.TankDrive(1.0 * (absoluteangle != angletoturn ? 1 : -1) * error
-						, 1.0 * (absoluteangle != angletoturn ? -1 : 1) * error);
+				error = (distancetotravel - distancetravelled) / distancetotravel;
+				Robot.drivetrain.TankDrive(1.0 * isleftturn * error, -1.0 * isleftturn * error);
 				System.out.println("Voltage: " + currentvoltage +
 						" Estimated Velocity: " + estimatedvelocity + 
 						" Distance Travelled: " + distancetravelled +"\n");
 				time = timer.get();
 			}
-		}
-    }
-    
-    protected void execute()
-    {
+		}	
     	/*
     	turnController = new PIDController(AUTONOMOUS.kP, AUTONOMOUS.kI, AUTONOMOUS.kD, AUTONOMOUS.kF, Robot.navx.ahrs, buffer);
         turnController.setInputRange(-180.0f,  180.0f);
@@ -64,7 +74,6 @@ public class Turn extends InstantCommand
     	Robot.drivetrain.TankDrive(1.0 * buffer.output, 1.0 * buffer.output);
     	DriveTrain.frontLeftMotor.pidWrite(buffer.output);
     	*/
-    	
     }
     
     protected boolean isFinished()

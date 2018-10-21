@@ -14,27 +14,42 @@ import edu.wpi.first.wpilibj.command.InstantCommand;
 
 public class DriveForward extends InstantCommand 
 {
+	double 
+	distancetravelled,
+	distancetotravel,
+	currentvoltage,
+	estimatedvelocity,
+	error,
+	time;
 	public DriveForward(double distance)
+	{
+		distancetravelled = 0;
+		distancetotravel = distance;
+		currentvoltage = 0;
+		estimatedvelocity = 0;
+		error = 0;
+		time = 0;
+	}
+	protected void execute()
 	{
 		Timer finaltimer = new Timer();
 		finaltimer.start();
-		double distancetravelled = 0;
 		Timer timer = new Timer();
 		timer.start();
 		Robot.drivetrain.TankDrive(-1.0, -1.0);
-		double time = timer.get();
-		while (distancetravelled < distance && finaltimer.get() < 2)
+		time = timer.get();
+		while (distancetravelled < distancetotravel && finaltimer.get() < 2)
 		{
 			while (timer.get() - time > AUTONOMOUS.TIME_PERIOD)
 			{
-				double currentvoltage = DriveTrain.frontRightMotor.getMotorOutputVoltage();
-				double estimatedvelocity = (currentvoltage + 1.25) * -1.25;
+				currentvoltage = DriveTrain.frontRightMotor.getMotorOutputVoltage();
+				estimatedvelocity = (currentvoltage + (currentvoltage < 0 ? 1.25 : -1.25)) * 1.25;
 				distancetravelled += estimatedvelocity * AUTONOMOUS.TIME_PERIOD;
-				double error = (distance - distancetravelled) / distance;
+				error = (distancetotravel - distancetravelled) / distancetotravel;
 				Robot.drivetrain.TankDrive(-1.0 * error, -1.0 * error);
 				System.out.println("Voltage: " + currentvoltage +
 						" Estimated Velocity: " + estimatedvelocity + 
-						" Distance Travelled: " + distancetravelled +"\n");
+						" Distance Travelled: " + distancetravelled + "\n");
 				time = timer.get();
 			}
 		}
