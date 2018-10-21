@@ -23,9 +23,9 @@ public class DriveForward extends InstantCommand
 		timer.start();
 		Robot.drivetrain.TankDrive(-1.0, -1.0);
 		double time = timer.get();
-		while ( finaltimer.get() < 2)
+		while (distancetravelled < distance && finaltimer.get() < 2)
 		{
-			while (distancetravelled < distance && timer.get() - time > AUTONOMOUS.TIME_PERIOD)
+			while (timer.get() - time > AUTONOMOUS.TIME_PERIOD)
 			{
 				double currentvoltage = DriveTrain.frontRightMotor.getMotorOutputVoltage();
 				double estimatedvelocity = (currentvoltage + 1.25) * -1.25;

@@ -218,7 +218,7 @@ public class RobotMap {
 		IS_RIGHT = false;
 
 		public static final double
-		TIME_PERIOD = .05;
+		TIME_PERIOD = .02;
 		static final double kP = 0.03;
 		static final double kI = 0.00;
 		static final double kD = 0.00;
