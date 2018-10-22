@@ -29,14 +29,11 @@ public class DriveForward extends InstantCommand
 		estimatedvelocity = 0;
 		error = 0;
 		time = 0;
-	}
-	protected void execute()
-	{
 		Timer finaltimer = new Timer();
 		finaltimer.start();
 		Timer timer = new Timer();
 		timer.start();
-		Robot.drivetrain.TankDrive(-1.0, -1.0);
+		Robot.drivetrain.TankDrive(1.0, 1.0);
 		time = timer.get();
 		while (distancetravelled < distancetotravel && finaltimer.get() < 2)
 		{
@@ -46,13 +43,17 @@ public class DriveForward extends InstantCommand
 				estimatedvelocity = (currentvoltage + (currentvoltage < 0 ? 1.25 : -1.25)) * 1.25;
 				distancetravelled += estimatedvelocity * AUTONOMOUS.TIME_PERIOD;
 				error = (distancetotravel - distancetravelled) / distancetotravel;
-				Robot.drivetrain.TankDrive(-1.0 * error, -1.0 * error);
+				Robot.drivetrain.TankDrive(1.0 * error, 1.0 * error);
 				System.out.println("Voltage: " + currentvoltage +
 						" Estimated Velocity: " + estimatedvelocity + 
 						" Distance Travelled: " + distancetravelled + "\n");
 				time = timer.get();
 			}
 		}
+	}
+	protected void execute()
+	{
+		
 	}
 	protected void end()
 	{
